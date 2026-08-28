@@ -4,6 +4,9 @@ A Magic: The Gathering life counter for iPhone and iPad, built for a device
 lying in the middle of the table. Every player's panel faces their own seat.
 No ads, no accounts, nothing collected.
 
+Source: <https://github.com/dtanner/sparkwarden> (MIT). Build instructions
+are in [CONTRIBUTING.md](CONTRIBUTING.md).
+
 ## Features
 
 - **2–6 players.** Panels are arranged along the long sides of the device

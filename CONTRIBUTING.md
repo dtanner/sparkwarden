@@ -18,7 +18,7 @@ Requires iOS 17+. Universal (iPhone and iPad), all orientations.
 
 ## Build & run
 
-The Xcode project is generated from `project.yml` by
+Clone from <https://github.com/dtanner/sparkwarden>. The Xcode project is generated from `project.yml` by
 [XcodeGen](https://github.com/yonaskolb/XcodeGen) and is **not** checked in.
 Build and run via the [`justfile`](justfile) (`just` + `xcodegen` required):
 

@@ -2,7 +2,8 @@
 
 iOS/iPadOS life counter for Magic: The Gathering. The device sits in the
 middle of the table and each player's panel is rotated to face their seat.
-No ads, no analytics, no network.
+No ads, no analytics, no network. Repo: https://github.com/dtanner/sparkwarden
+(local checkout at `~/code/sparkwarden`).
 
 ## Build & run
 

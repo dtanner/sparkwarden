@@ -94,8 +94,7 @@ struct PlayerRow: View {
                         Label {
                             Text(color.label)
                         } icon: {
-                            Image(systemName: player.color == color ? "checkmark.circle.fill" : "circle.fill")
-                                .foregroundStyle(color.color(lit: false))
+                            Image(uiImage: color.swatch(selected: player.color == color))
                         }
                     }
                 }
@@ -110,5 +109,27 @@ struct PlayerRow: View {
                 .submitLabel(.done)
             Image(systemName: "pencil").foregroundStyle(.tertiary)
         }
+    }
+}
+
+private extension PlayerColor {
+    /// Menu items draw their icons as template images, which would flatten
+    /// every swatch to white; a pre-rendered original-mode image keeps the color.
+    func swatch(selected: Bool) -> UIImage {
+        let size = CGSize(width: 24, height: 24)
+        let image = UIGraphicsImageRenderer(size: size).image { ctx in
+            UIColor(color(lit: false)).setFill()
+            ctx.cgContext.fillEllipse(in: CGRect(origin: .zero, size: size))
+            if selected {
+                let check = UIImage(systemName: "checkmark", withConfiguration:
+                    UIImage.SymbolConfiguration(pointSize: 12, weight: .bold))!
+                    .withTintColor(UIColor(foreground), renderingMode: .alwaysOriginal)
+                let r = CGRect(x: (size.width - check.size.width) / 2,
+                               y: (size.height - check.size.height) / 2,
+                               width: check.size.width, height: check.size.height)
+                check.draw(in: r)
+            }
+        }
+        return image.withRenderingMode(.alwaysOriginal)
     }
 }

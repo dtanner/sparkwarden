@@ -57,6 +57,13 @@ struct Game: Equatable {
         players[seat] = player
     }
 
+    /// Two players trade seats, taking their counters with them. Rotation
+    /// overrides belong to the physical seat and stay put.
+    mutating func swapSeats(_ a: Int, _ b: Int) {
+        players.swapAt(a, b)
+        states.swapAt(a, b)
+    }
+
     mutating func setRotation(_ degrees: Int, seat: Int) {
         rotationOverrides[seat] = degrees
     }

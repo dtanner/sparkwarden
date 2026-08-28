@@ -85,6 +85,12 @@ final class AppModel {
         }
     }
 
+    /// Seat swaps persist too, so the table comes back the same next game.
+    func swapSeats(_ a: Int, _ b: Int) {
+        edit { $0.swapSeats(a, b) }
+        settings.swapSeats(a, b)
+    }
+
     func isLit(seat: Int) -> Bool {
         litSeat == seat || starterSeat == seat
     }

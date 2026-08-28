@@ -18,6 +18,8 @@ struct PlayerPanel: View {
     /// Which half just got tapped, briefly lit to confirm the tap landed.
     @State private var flashedDelta = 0
     @State private var editingPlayer = false
+    /// Another panel is being dragged over this one to swap seats.
+    @State private var isDropTarget = false
 
     private static let gap: CGFloat = 3
 
@@ -30,6 +32,21 @@ struct PlayerPanel: View {
                 .frame(width: inner.width - Self.gap * 2, height: inner.height - Self.gap * 2)
                 .rotationEffect(.degrees(Double(rotation)))
                 .frame(width: size.width, height: size.height)
+                // Long-press and drop on another panel to trade seats.
+                .draggable(String(seat))
+                .dropDestination(for: String.self) { items, _ in
+                    guard let other = items.first.flatMap(Int.init), other != seat else { return false }
+                    model.swapSeats(seat, other)
+                    UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+                    return true
+                } isTargeted: { isDropTarget = $0 }
+                .overlay {
+                    RoundedRectangle(cornerRadius: 18)
+                        .strokeBorder(.white, lineWidth: isDropTarget ? 4 : 0)
+                        .padding(Self.gap)
+                        .animation(.easeOut(duration: 0.15), value: isDropTarget)
+                        .allowsHitTesting(false)
+                }
                 .sheet(isPresented: $editingPlayer) {
                     PlayerEditView(seat: seat, defaultRotation: defaultRotation, facings: facings)
                 }

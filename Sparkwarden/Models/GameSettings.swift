@@ -40,10 +40,13 @@ struct GameSettings: Codable, Equatable {
 
     static func defaultName(seat: Int) -> String { "Player \(seat + 1)" }
 
-    /// True when any seated player has been given a real name; with default
-    /// names there's nothing meaningful to reorder.
+    /// True when any seated player has been given a real name.
     var hasCustomNames: Bool {
         seated.enumerated().contains { $0.element.displayName != Self.defaultName(seat: $0.offset) }
+    }
+
+    mutating func swapSeats(_ a: Int, _ b: Int) {
+        players.swapAt(a, b)
     }
 
     /// Restores every seat's default "Player N" name; colors are kept.

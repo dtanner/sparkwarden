@@ -66,3 +66,22 @@ struct GameTests {
         #expect(!settings.hasCustomNames)
     }
 }
+
+extension GameTests {
+    @Test func swapSeatsMovesPlayersWithTheirCounters() {
+        var game = makeGame(mode: .commander, count: 3)
+        let (a, b) = (game.players[0], game.players[2])
+        game.addLife(-7, seat: 0)
+        game.addCommanderDamage(5, seat: 2, from: 1)
+        game.setRotation(90, seat: 0)
+
+        game.swapSeats(0, 2)
+
+        #expect(game.players[0] == b && game.players[2] == a)
+        #expect(game[2].life == 33)
+        #expect(game[0].life == 35)
+        #expect(game.commanderDamage(seat: 0, from: 1) == 5)
+        #expect(game.rotation(seat: 0, defaultRotation: 0) == 90)
+        #expect(game.rotation(seat: 2, defaultRotation: 0) == 0)
+    }
+}

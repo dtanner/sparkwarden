@@ -44,19 +44,16 @@ struct SetupView: View {
                     ForEach($model.settings.players.prefix(model.settings.playerCount)) { $player in
                         PlayerRow(player: $player)
                     }
-                    .onMove { model.settings.players.move(fromOffsets: $0, toOffset: $1) }
-                    .moveDisabled(!model.settings.hasCustomNames)
                 } header: {
-                    Text("Seats")
+                    Text("Players")
                 } footer: {
-                    if model.settings.hasCustomNames {
-                        VStack(alignment: .leading, spacing: 8) {
-                            Text("Drag to match where people are sitting. Seat 1 is the top-left panel; seats run left to right, then down.")
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("Who's playing. At the table, long-press a panel and drop it on another to trade seats.")
+                        if model.settings.hasCustomNames {
                             Button("Reset Names", role: .destructive) { model.settings.resetNames() }
                         }
                     }
                 }
-                .environment(\.editMode, .constant(model.settings.hasCustomNames ? .active : .inactive))
             }
             .safeAreaInset(edge: .bottom) {
                 Button {

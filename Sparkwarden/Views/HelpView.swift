@@ -19,7 +19,8 @@ struct HelpView: View {
                     Text("Commander mode starts at 40 life and adds a crown counter for commander tax (steps of 2) and a shield button that tracks damage taken from each opponent's commander. Commander damage also comes off life.")
                 }
                 Section("Seats") {
-                    Text("Names and colors are set on the setup screen and remembered for next time. Once players have names, drag the seats into the order people are sitting. Reset Names puts every seat back to “Player N”; colors are kept.")
+                    Text("Names and colors are set on the setup screen and remembered for next time. Reset Names puts every seat back to “Player N”; colors are kept.")
+                    Text("To match where people are sitting, long-press a panel and drop it on another: the two players trade places, counters included. Seating is remembered for the next game.")
                     Text("The ••• button on a panel renames or recolors that player, or changes which edge of the screen the panel faces for odd table shapes.")
                 }
             }

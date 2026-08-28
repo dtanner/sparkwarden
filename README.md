@@ -21,9 +21,10 @@ are in [CONTRIBUTING.md](CONTRIBUTING.md).
   0 life, 10 poison, or 21 commander damage from one opponent.
 - **Who goes first?** When a game starts, tap "Who goes first?" and a light spins around the table, lighting
   each panel as it passes, slowing down until it stops on the starter. Dismiss it if last game's loser is starting.
-- **Names and colors** are remembered between games. Once players are named,
-  drag the seats on the setup screen into the order people are sitting. Reset Names
-  clears them back to "Player N".
+- **Names, colors, and seating** are remembered between games. At the table,
+  long-press a panel and drop it on another to trade seats — the two players
+  swap places, counters and all. Reset Names on the setup screen clears names
+  back to "Player N".
 - The screen stays awake while a game is running. End Game asks first.
 
 ## Building

@@ -43,6 +43,19 @@ struct TableLayout: Equatable {
         }
     }
 
+    /// Seats in clockwise order around the table, starting at the top-left
+    /// panel in portrait. Landscape is a rotation of the portrait arrangement,
+    /// so the order is the same in either orientation.
+    static func clockwiseSeats(count: Int) -> [Int] {
+        let rows = portraitRows(count: count)
+        var ring = rows[0].map(\.seat)
+        // Down the right side, back along the bottom, and up the left side.
+        ring += rows.dropFirst().map { $0.last!.seat }
+        ring += rows.last!.dropLast().reversed().map(\.seat)
+        ring += rows.dropFirst().dropLast().reversed().compactMap { $0.count > 1 ? $0.first!.seat : nil }
+        return ring
+    }
+
     func defaultRotation(seat: Int) -> Int {
         groups.joined().first { $0.seat == seat }?.rotation ?? 0
     }

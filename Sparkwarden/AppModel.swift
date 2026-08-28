@@ -102,7 +102,7 @@ final class AppModel {
         isSpinning = true
         starterSeat = nil
         var rng = SystemRandomNumberGenerator()
-        let steps = StarterRoulette.steps(count: game.count, start: litSeat, using: &rng)
+        let steps = StarterRoulette.steps(ring: TableLayout.clockwiseSeats(count: game.count), start: litSeat, using: &rng)
         spinTask = Task { [weak self] in
             let tick = UISelectionFeedbackGenerator()
             for step in steps {

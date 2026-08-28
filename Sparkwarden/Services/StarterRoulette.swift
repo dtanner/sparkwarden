@@ -13,24 +13,26 @@ enum StarterRoulette {
     static let fastestDelay: TimeInterval = 0.06
     static let slowestDelay: TimeInterval = 0.55
 
-    /// Steps from `start` (the seat currently lit, or nil) around the table
-    /// at least `minLaps` times, decelerating, and landing on `winner`.
-    static func steps(count: Int, winner: Int, start: Int? = nil) -> [Step] {
-        precondition(count > 0 && (0..<count).contains(winner))
-        let first = ((start ?? (winner - 1)) + 1 + count) % count
-        var seats = [first]
-        while seats.count < minLaps * count || seats.last != winner {
-            seats.append((seats.last! + 1) % count)
+    /// Steps from `start` (the seat currently lit, or nil) around `ring` — the
+    /// seats in table order — at least `minLaps` times, decelerating, and
+    /// landing on `winner`.
+    static func steps(ring: [Int], winner: Int, start: Int? = nil) -> [Step] {
+        let count = ring.count
+        guard let target = ring.firstIndex(of: winner) else { preconditionFailure("winner not in ring") }
+        let current = start.flatMap(ring.firstIndex) ?? (target - 1 + count) % count
+        var positions = [(current + 1) % count]
+        while positions.count < minLaps * count || positions.last != target {
+            positions.append((positions.last! + 1) % count)
         }
-        let total = Double(seats.count - 1)
-        return seats.enumerated().map { i, seat in
+        let total = Double(positions.count - 1)
+        return positions.enumerated().map { i, position in
             // Quadratic ease-out: quick at the start, lingering at the end.
             let t = total == 0 ? 1 : Double(i) / total
-            return Step(seat: seat, delay: fastestDelay + (slowestDelay - fastestDelay) * t * t)
+            return Step(seat: ring[position], delay: fastestDelay + (slowestDelay - fastestDelay) * t * t)
         }
     }
 
-    static func steps(count: Int, start: Int? = nil, using rng: inout some RandomNumberGenerator) -> [Step] {
-        steps(count: count, winner: Int.random(in: 0..<count, using: &rng), start: start)
+    static func steps(ring: [Int], start: Int? = nil, using rng: inout some RandomNumberGenerator) -> [Step] {
+        steps(ring: ring, winner: ring.randomElement(using: &rng)!, start: start)
     }
 }

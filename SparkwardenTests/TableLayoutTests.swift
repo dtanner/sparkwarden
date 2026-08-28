@@ -9,6 +9,14 @@ struct TableLayoutTests {
         }
     }
 
+    @Test func clockwiseSeatsGoAroundTheTable() {
+        #expect(TableLayout.clockwiseSeats(count: 2) == [0, 1])
+        #expect(TableLayout.clockwiseSeats(count: 3) == [0, 2, 1])
+        #expect(TableLayout.clockwiseSeats(count: 4) == [0, 1, 3, 2])
+        #expect(TableLayout.clockwiseSeats(count: 5) == [0, 2, 4, 3, 1])
+        #expect(TableLayout.clockwiseSeats(count: 6) == [0, 1, 3, 5, 4, 2])
+    }
+
     @Test func portraitFourFacesTheLongSides() {
         let layout = TableLayout.layout(count: 4, landscape: false)
         #expect(layout.groups == [

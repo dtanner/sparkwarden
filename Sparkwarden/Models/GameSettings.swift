@@ -45,4 +45,11 @@ struct GameSettings: Codable, Equatable {
     var hasCustomNames: Bool {
         seated.enumerated().contains { $0.element.displayName != Self.defaultName(seat: $0.offset) }
     }
+
+    /// Restores every seat's default "Player N" name; colors are kept.
+    mutating func resetNames() {
+        for i in players.indices {
+            players[i].name = Self.defaultName(seat: i)
+        }
+    }
 }

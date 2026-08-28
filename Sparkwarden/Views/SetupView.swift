@@ -50,7 +50,10 @@ struct SetupView: View {
                     Text("Seats")
                 } footer: {
                     if model.settings.hasCustomNames {
-                        Text("Drag to match where people are sitting. Seat 1 is the top-left panel; seats run left to right, then down.")
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("Drag to match where people are sitting. Seat 1 is the top-left panel; seats run left to right, then down.")
+                            Button("Reset Names", role: .destructive) { model.settings.resetNames() }
+                        }
                     }
                 }
                 .environment(\.editMode, .constant(model.settings.hasCustomNames ? .active : .inactive))

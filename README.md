@@ -29,6 +29,12 @@ are in [CONTRIBUTING.md](CONTRIBUTING.md).
   back to "Player N".
 - The screen stays awake while a game is running. End Game asks first.
 
+## Privacy
+
+Sparkwarden collects nothing. No ads, no accounts, no analytics, and no
+network access — the app never connects to the internet. Player names,
+colors, and seating are stored only on your device and never leave it.
+
 ## Building
 
 See [CONTRIBUTING.md](CONTRIBUTING.md).

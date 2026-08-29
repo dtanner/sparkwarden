@@ -33,6 +33,29 @@ struct GameSettings: Codable, Equatable {
     var players: [Player] = (0..<maxPlayers).map {
         Player(name: defaultName(seat: $0), color: PlayerColor.defaults[$0])
     }
+    /// Per-seat facing overrides carried from game to game, keyed by seat
+    /// index, with the day they were last set. They belong to the physical
+    /// spot at the table, not the player, so seat swaps leave them alone.
+    var rotationOverrides: [Int: Int] = [:]
+    var rotationOverridesDate: Date?
+
+    init() {}
+
+    private enum CodingKeys: String, CodingKey {
+        case mode, startingLife, playerCount, players, rotationOverrides, rotationOverridesDate
+    }
+
+    /// Older saved settings predate rotation overrides, so those keys are
+    /// optional on decode.
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        mode = try container.decode(GameMode.self, forKey: .mode)
+        startingLife = try container.decode(Int.self, forKey: .startingLife)
+        playerCount = try container.decode(Int.self, forKey: .playerCount)
+        players = try container.decode([Player].self, forKey: .players)
+        rotationOverrides = try container.decodeIfPresent([Int: Int].self, forKey: .rotationOverrides) ?? [:]
+        rotationOverridesDate = try container.decodeIfPresent(Date.self, forKey: .rotationOverridesDate)
+    }
 
     var seated: [Player] {
         Array(players.prefix(playerCount))
@@ -47,6 +70,16 @@ struct GameSettings: Codable, Equatable {
 
     mutating func swapSeats(_ a: Int, _ b: Int) {
         players.swapAt(a, b)
+    }
+
+    /// Facing overrides describe where the device sat that day; a table from
+    /// another day is no guide, so overrides expire at midnight.
+    mutating func pruneRotationOverrides(now: Date = .now, calendar: Calendar = .current) {
+        guard let date = rotationOverridesDate, calendar.isDate(date, inSameDayAs: now) else {
+            rotationOverrides = [:]
+            rotationOverridesDate = nil
+            return
+        }
     }
 
     /// Restores every seat's default "Player N" name; colors are kept.

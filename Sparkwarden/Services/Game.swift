@@ -10,13 +10,14 @@ struct Game: Equatable {
     private(set) var states: [PlayerState]
     /// Per-seat rotation override in degrees, applied on top of the table
     /// layout's default. Keyed by seat index.
-    private(set) var rotationOverrides: [Int: Int] = [:]
+    private(set) var rotationOverrides: [Int: Int]
 
     init(settings: GameSettings) {
         mode = settings.mode
         startingLife = settings.startingLife
         players = settings.seated
         states = players.map { _ in PlayerState(life: settings.startingLife) }
+        rotationOverrides = settings.rotationOverrides
     }
 
     var count: Int { players.count }

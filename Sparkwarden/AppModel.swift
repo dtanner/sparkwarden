@@ -42,6 +42,7 @@ final class AppModel {
     // MARK: Game lifecycle
 
     func startGame() {
+        settings.pruneRotationOverrides()
         game = Game(settings: settings)
         starterSeat = nil
         showsStarterPrompt = true
@@ -89,6 +90,14 @@ final class AppModel {
     func swapSeats(_ a: Int, _ b: Int) {
         edit { $0.swapSeats(a, b) }
         settings.swapSeats(a, b)
+    }
+
+    /// Facing choices persist so the seat faces the same way next game;
+    /// they expire after the day they were set.
+    func setRotation(_ degrees: Int, seat: Int) {
+        edit { $0.setRotation(degrees, seat: seat) }
+        settings.rotationOverrides[seat] = degrees
+        settings.rotationOverridesDate = .now
     }
 
     func isLit(seat: Int) -> Bool {

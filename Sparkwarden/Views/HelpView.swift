@@ -21,7 +21,7 @@ struct HelpView: View {
                 Section("Seats") {
                     Text("Names and colors are set on the setup screen and remembered for next time. Reset Names puts every seat back to “Player N”; colors are kept.")
                     Text("To match where people are sitting, long-press a panel and drop it on another: the two players trade places, counters included. Seating is remembered for the next game.")
-                    Text("The ••• button on a panel renames or recolors that player, or changes which edge of the screen the panel faces for odd table shapes.")
+                    Text("The ••• button on a panel renames or recolors that player, or changes which edge of the screen the panel faces for odd table shapes. Facing belongs to the spot, not the player — it stays put through seat swaps and later games, until the day ends.")
                 }
             }
             .navigationTitle("Help")

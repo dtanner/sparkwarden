@@ -22,7 +22,7 @@ struct PlayerEditView: View {
                     Section {
                         Picker("Faces", selection: Binding(
                             get: { game.rotation(seat: seat, defaultRotation: defaultRotation) },
-                            set: { degrees in model.edit { $0.setRotation(degrees, seat: seat) } }
+                            set: { degrees in model.setRotation(degrees, seat: seat) }
                         )) {
                             ForEach(facings) { facing in
                                 Label(facing.label, systemImage: facing.systemImage).tag(facing.rotation)

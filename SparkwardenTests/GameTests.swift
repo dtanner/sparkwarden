@@ -49,6 +49,13 @@ struct GameTests {
         #expect(game[0].commanderTax == 2)
     }
 
+    @Test func rotationOverridesCarryOverFromSettings() {
+        var settings = GameSettings()
+        settings.rotationOverrides = [1: 90]
+        let game = Game(settings: settings)
+        #expect(game.rotation(seat: 1, defaultRotation: 270) == 90)
+    }
+
     @Test func rotationOverrideReplacesLayoutDefault() {
         var game = makeGame()
         #expect(game.rotation(seat: 0, defaultRotation: 90) == 90)

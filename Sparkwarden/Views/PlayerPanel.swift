@@ -15,6 +15,9 @@ struct PlayerPanel: View {
     @State private var pendingDelta = 0
     @State private var deltaResetTask: Task<Void, Never>?
     @State private var showingCommander = false
+    /// Closes the damage grid after a pause; while it's open the life
+    /// number is hidden and the life tap zones are off.
+    @State private var commanderCloseTask: Task<Void, Never>?
     /// Which half just got tapped, briefly lit to confirm the tap landed.
     @State private var flashedDelta = 0
     @State private var editingPlayer = false
@@ -22,6 +25,8 @@ struct PlayerPanel: View {
     @State private var isDropTarget = false
 
     private static let gap: CGFloat = 3
+    private static let commanderIdle: Duration = .seconds(8)
+    static let cornerRadius: CGFloat = 18
 
     var body: some View {
         if let game = model.game, seat < game.count {
@@ -41,7 +46,7 @@ struct PlayerPanel: View {
                     return true
                 } isTargeted: { isDropTarget = $0 }
                 .overlay {
-                    RoundedRectangle(cornerRadius: 18)
+                    RoundedRectangle(cornerRadius: Self.cornerRadius)
                         .strokeBorder(.white, lineWidth: isDropTarget ? 4 : 0)
                         .padding(Self.gap)
                         .animation(.easeOut(duration: 0.15), value: isDropTarget)
@@ -50,51 +55,72 @@ struct PlayerPanel: View {
                 .sheet(isPresented: $editingPlayer) {
                     PlayerEditView(seat: seat, defaultRotation: defaultRotation, facings: facings)
                 }
+                // Every damage tap keeps the grid open a little longer.
+                .onChange(of: game[seat].commanderDamage) { _, _ in
+                    if showingCommander { showCommander(true) }
+                }
         }
     }
 
+    /// The background sets the panel's size; everything else is an overlay
+    /// so content that doesn't fit spills rather than stretching the panel.
     @ViewBuilder
     private func panel(game: Game, player: Player, state: PlayerState, inner: CGSize, rotation: Int) -> some View {
         let fg = player.color.foreground
         let lit = model.isLit(seat: seat)
-        ZStack {
-            RoundedRectangle(cornerRadius: 18)
-                .fill(player.color.color(lit: lit))
-                .animation(.easeOut(duration: 0.12), value: lit)
-
-            // Tap targets sit under the labels so the number itself is tappable.
-            // Each half carries a faint glyph so the zones are discoverable,
-            // and flashes when tapped.
-            let glyphsLeading = Facing.leadingEdge(rotation: rotation) != glyphEdge.opposite
-            VStack(spacing: 0) {
-                tapZone(delta: 1, glyph: "plus", fg: fg, leading: glyphsLeading)
-                tapZone(delta: -1, glyph: "minus", fg: fg, leading: glyphsLeading)
-            }
-            .clipShape(RoundedRectangle(cornerRadius: 18))
-
-            VStack(spacing: 0) {
-                header(fg: fg)
-                Spacer(minLength: 0)
-                if showingCommander {
-                    CommanderDamageList(seat: seat, fg: fg)
-                } else {
-                    lifeLabel(state: state, fg: fg, inner: inner)
+        RoundedRectangle(cornerRadius: Self.cornerRadius)
+            .fill(player.color.color(lit: lit))
+            .animation(.easeOut(duration: 0.12), value: lit)
+            .overlay {
+                // Tap targets sit under the labels so the number itself is
+                // tappable. Each half carries a faint glyph so the zones are
+                // discoverable, and flashes when tapped.
+                if !showingCommander {
+                    let glyphsLeading = Facing.leadingEdge(rotation: rotation) != glyphEdge.opposite
+                    VStack(spacing: 0) {
+                        tapZone(delta: 1, glyph: "plus", fg: fg, leading: glyphsLeading)
+                        tapZone(delta: -1, glyph: "minus", fg: fg, leading: glyphsLeading)
+                    }
+                    .clipShape(RoundedRectangle(cornerRadius: Self.cornerRadius))
                 }
-                Spacer(minLength: 0)
-                counters(player: player, state: state, fg: fg)
             }
-            .padding(10)
-
-            if state.isDead {
-                RoundedRectangle(cornerRadius: 18).fill(.black.opacity(0.55))
-                    .allowsHitTesting(false)
-                Image(systemName: "xmark.circle")
-                    .font(.system(size: min(inner.width, inner.height) * 0.3))
-                    .foregroundStyle(.white.opacity(0.7))
-                    .allowsHitTesting(false)
+            .overlay {
+                VStack(spacing: 0) {
+                    header(fg: fg)
+                    if showingCommander {
+                        // The damage grid dims the panel so tiles in the
+                        // player's own color still stand out.
+                        CommanderDamageGrid(seat: seat, fg: fg) { showCommander(false) }
+                            .padding(.top, 6)
+                            .transition(.opacity)
+                    } else {
+                        Spacer(minLength: 0)
+                        lifeLabel(state: state, fg: fg, inner: inner)
+                        Spacer(minLength: 0)
+                        counters(player: player, state: state, fg: fg)
+                    }
+                }
+                .padding(10)
+                .background {
+                    // Tapping the dimmed panel around the tiles closes the grid.
+                    RoundedRectangle(cornerRadius: Self.cornerRadius)
+                        .fill(.black.opacity(showingCommander ? 0.35 : 0))
+                        .contentShape(Rectangle())
+                        .onTapGesture { showCommander(false) }
+                        .allowsHitTesting(showingCommander)
+                }
             }
-        }
-        .foregroundStyle(fg)
+            .overlay {
+                if state.isDead {
+                    RoundedRectangle(cornerRadius: Self.cornerRadius).fill(.black.opacity(0.55))
+                        .allowsHitTesting(false)
+                    Image(systemName: "xmark.circle")
+                        .font(.system(size: min(inner.width, inner.height) * 0.3))
+                        .foregroundStyle(.white.opacity(0.7))
+                        .allowsHitTesting(false)
+                }
+            }
+            .foregroundStyle(fg)
     }
 
     private func tapZone(delta: Int, glyph: String, fg: Color, leading: Bool) -> some View {
@@ -147,18 +173,19 @@ struct PlayerPanel: View {
     }
 
     /// Name and counters share one row when the panel is wide enough;
-    /// otherwise the name gets its own line above the chips.
+    /// otherwise the name gets its own line and the chips wrap beneath it,
+    /// as many per line as fit.
     @ViewBuilder
     private func counters(player: Player, state: PlayerState, fg: Color) -> some View {
         ViewThatFits(in: .horizontal) {
             HStack(spacing: 8) {
                 nameButton(player)
                 Spacer(minLength: 8)
-                chips(state: state, fg: fg)
+                chips(player: player, state: state, fg: fg, layout: AnyLayout(HStackLayout(spacing: 8)))
             }
             VStack(alignment: .leading, spacing: 6) {
                 nameButton(player)
-                chips(state: state, fg: fg)
+                chips(player: player, state: state, fg: fg, layout: AnyLayout(FlowLayout(spacing: 6)))
             }
         }
     }
@@ -172,26 +199,44 @@ struct PlayerPanel: View {
         }
     }
 
+    /// Poison, then in commander mode one tax chip per commander and the
+    /// damage-grid button.
     @ViewBuilder
-    private func chips(state: PlayerState, fg: Color) -> some View {
+    private func chips(player: Player, state: PlayerState, fg: Color, layout: AnyLayout) -> some View {
         let game = model.game!
-        HStack(spacing: 8) {
+        layout {
             CounterChip(systemImage: "cross.vial.fill", value: state.poison, fg: fg) { delta in
                 model.modify { $0.addPoison(delta, seat: seat) }
             }
             if game.mode == .commander {
-                CounterChip(systemImage: "crown.fill", value: state.commanderTax, step: 2, fg: fg) { delta in
-                    model.modify { $0.addCommanderTax(delta, seat: seat) }
+                ForEach(0..<player.commanderCount, id: \.self) { commander in
+                    CounterChip(systemImage: "crown.fill",
+                                badge: player.commanderCount > 1 ? "\(commander + 1).circle.fill" : nil,
+                                value: state.commanderTax[commander], step: 2, fg: fg) { delta in
+                        model.modify { $0.addCommanderTax(delta, seat: seat, commander: commander) }
+                    }
                 }
                 Button {
-                    showingCommander.toggle()
+                    showCommander(true)
                 } label: {
-                    Image(systemName: showingCommander ? "xmark" : "shield.lefthalf.filled")
+                    Image(systemName: "shield.lefthalf.filled")
                         .font(.subheadline.weight(.semibold))
                         .frame(width: 30, height: 30)
-                        .background(fg.opacity(showingCommander ? 0.35 : 0.2), in: Capsule())
+                        .background(fg.opacity(0.2), in: Capsule())
                 }
             }
+        }
+    }
+
+    /// Opens (and re-arms the idle timer of) or closes the damage grid.
+    private func showCommander(_ show: Bool) {
+        withAnimation(.snappy(duration: 0.2)) { showingCommander = show }
+        commanderCloseTask?.cancel()
+        guard show else { return }
+        commanderCloseTask = Task {
+            try? await Task.sleep(for: Self.commanderIdle)
+            guard !Task.isCancelled else { return }
+            withAnimation(.snappy(duration: 0.2)) { showingCommander = false }
         }
     }
 
@@ -213,6 +258,9 @@ struct PlayerPanel: View {
 /// A small `− icon value +` pill that lives along the panel's bottom edge.
 struct CounterChip: View {
     let systemImage: String
+    /// A second, smaller symbol after the icon — the commander number on a
+    /// partner player's tax chips.
+    var badge: String? = nil
     let value: Int
     var step = 1
     let fg: Color
@@ -223,6 +271,7 @@ struct CounterChip: View {
             chipButton("minus") { change(-step) }
             HStack(spacing: 3) {
                 Image(systemName: systemImage).font(.subheadline)
+                if let badge { Image(systemName: badge).font(.caption2) }
                 Text("\(value)").monospacedDigit()
             }
             .font(.subheadline.weight(.semibold))
@@ -242,33 +291,246 @@ struct CounterChip: View {
     }
 }
 
-/// Commander damage taken from each opponent, shown in place of the life
-/// number so it faces the same way as the rest of the panel.
-struct CommanderDamageList: View {
+/// Lays its children out left to right, starting a new line when the next
+/// one wouldn't fit. Lines are as tall as their tallest child.
+struct FlowLayout: Layout {
+    var spacing: CGFloat = 8
+
+    func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) -> CGSize {
+        let lines = lines(fitting: proposal.width ?? .infinity, subviews: subviews)
+        return CGSize(width: lines.map(\.width).max() ?? 0,
+                      height: lines.map(\.height).reduce(0, +) + spacing * CGFloat(max(lines.count - 1, 0)))
+    }
+
+    func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) {
+        var y = bounds.minY
+        for line in lines(fitting: bounds.width, subviews: subviews) {
+            var x = bounds.minX
+            for index in line.indices {
+                let size = subviews[index].sizeThatFits(.unspecified)
+                subviews[index].place(at: CGPoint(x: x, y: y + (line.height - size.height) / 2),
+                                      proposal: .unspecified)
+                x += size.width + spacing
+            }
+            y += line.height + spacing
+        }
+    }
+
+    private struct Line {
+        var indices: [Int] = []
+        var width: CGFloat = 0
+        var height: CGFloat = 0
+    }
+
+    private func lines(fitting maxWidth: CGFloat, subviews: Subviews) -> [Line] {
+        var lines: [Line] = []
+        var line = Line()
+        for (index, subview) in subviews.enumerated() {
+            let size = subview.sizeThatFits(.unspecified)
+            let needed = line.indices.isEmpty ? size.width : line.width + spacing + size.width
+            if !line.indices.isEmpty && needed > maxWidth {
+                lines.append(line)
+                line = Line()
+            }
+            line.indices.append(index)
+            line.width = line.indices.count == 1 ? size.width : line.width + spacing + size.width
+            line.height = max(line.height, size.height)
+        }
+        lines.append(line)
+        return lines
+    }
+}
+
+/// Commander damage taken from every commander at the table, one tile per
+/// commander painted in its owner's color. Takes over the panel so the tiles
+/// get all the room; each works like the panel itself — tap the top half
+/// for +1, the bottom half for −1. Life stays visible in the footer since
+/// commander damage comes off it too. The panel closes the grid again after
+/// a pause without taps.
+struct CommanderDamageGrid: View {
     @Environment(AppModel.self) private var model
     let seat: Int
     let fg: Color
+    let close: () -> Void
+
+    private static let spacing: CGFloat = 6
 
     var body: some View {
         if let game = model.game {
-            ScrollView {
-                VStack(spacing: 4) {
-                    Text("Commander damage").font(.caption).opacity(0.8)
-                    ForEach(game.opponents(of: seat), id: \.seat) { opponent in
-                        let damage = game.commanderDamage(seat: seat, from: opponent.seat)
-                        HStack {
-                            Circle().fill(opponent.player.color.color(lit: false))
-                                .frame(width: 10, height: 10)
-                            Text(opponent.player.displayName).font(.subheadline).lineLimit(1)
-                            Spacer(minLength: 4)
-                            CounterChip(systemImage: "bolt.fill", value: damage, fg: fg) { delta in
-                                model.modify { $0.addCommanderDamage(delta, seat: seat, from: opponent.seat) }
+            let sources = game.damageSources(for: seat)
+            VStack(spacing: 8) {
+                GeometryReader { geo in
+                    let columns = Self.columns(count: sources.count, in: geo.size)
+                    VStack(spacing: Self.spacing) {
+                        ForEach(Array(stride(from: 0, to: sources.count, by: columns)), id: \.self) { start in
+                            let row = sources[start..<min(start + columns, sources.count)]
+                            HStack(spacing: Self.spacing) {
+                                ForEach(row) { source in
+                                    DamageTile(source: source,
+                                               own: source.seat == seat,
+                                               damage: game.commanderDamage(seat: seat, from: source)) { delta in
+                                        model.modify { $0.addCommanderDamage(delta, seat: seat, from: source) }
+                                    }
+                                }
+                                // Fillers keep a short last row's tiles the same size as the rest.
+                                ForEach(row.count..<columns, id: \.self) { _ in
+                                    Color.clear.allowsHitTesting(false)
+                                }
                             }
                         }
-                        .opacity(damage >= PlayerState.commanderLethal ? 0.6 : 1)
                     }
+                }
+                footer(life: game[seat].life)
+            }
+        }
+    }
+
+    /// The column count whose tiles come out largest, measured by the
+    /// shorter side, so a wide panel gets a row and a tall one a column.
+    static func columns(count: Int, in size: CGSize) -> Int {
+        guard count > 1 else { return 1 }
+        func side(_ columns: Int) -> CGFloat {
+            let rows = (count + columns - 1) / columns
+            return min((size.width - Self.spacing * CGFloat(columns - 1)) / CGFloat(columns),
+                       (size.height - Self.spacing * CGFloat(rows - 1)) / CGFloat(rows))
+        }
+        return (1...count).reduce(1) { side($1) > side($0) ? $1 : $0 }
+    }
+
+    private func footer(life: Int) -> some View {
+        HStack(spacing: 8) {
+            ViewThatFits(in: .horizontal) {
+                Label("Commander damage", systemImage: "shield.lefthalf.filled").lineLimit(1).fixedSize()
+                Image(systemName: "shield.lefthalf.filled")
+            }
+            .font(.subheadline.weight(.semibold))
+            Spacer(minLength: 8)
+            HStack(spacing: 3) {
+                Image(systemName: "heart.fill").font(.subheadline)
+                Text("\(life)").monospacedDigit()
+                    .contentTransition(.numericText(value: Double(life)))
+                    .animation(.snappy(duration: 0.15), value: life)
+            }
+            .font(.headline)
+            Button(action: close) {
+                Image(systemName: "xmark")
+                    .font(.subheadline.weight(.semibold))
+                    .frame(width: 30, height: 30)
+                    .background(fg.opacity(0.35), in: Capsule())
+            }
+            .accessibilityLabel("Close commander damage")
+        }
+    }
+}
+
+/// One commander's damage against this seat, in the commander owner's color.
+private struct DamageTile: View {
+    let source: Game.Commander
+    /// This is the seat's own commander.
+    let own: Bool
+    let damage: Int
+    let change: (Int) -> Void
+
+    @State private var flashedDelta = 0
+    /// Sum of the last burst of taps, shown briefly so a run of +1s can be checked.
+    @State private var pendingDelta = 0
+    @State private var pendingResetTask: Task<Void, Never>?
+
+    var body: some View {
+        let color = source.player.color
+        let fg = color.foreground
+        GeometryReader { geo in
+            let side = min(geo.size.width, geo.size.height)
+            ZStack {
+                RoundedRectangle(cornerRadius: 12).fill(color.color(lit: false))
+                // Small tiles skip the +/− hints; they'd crowd the number.
+                let hints = side >= 80
+                VStack(spacing: 0) {
+                    half(delta: 1, glyph: hints ? "plus" : nil, fg: fg)
+                    half(delta: -1, glyph: hints ? "minus" : nil, fg: fg)
+                }
+                .clipShape(RoundedRectangle(cornerRadius: 12))
+                VStack(spacing: 0) {
+                    Spacer(minLength: 0)
+                    Text("\(damage)")
+                        .font(.system(size: min(side * 0.55, 64), weight: .bold, design: .rounded))
+                        .monospacedDigit()
+                        .minimumScaleFactor(0.4)
+                        .lineLimit(1)
+                        .contentTransition(.numericText(value: Double(damage)))
+                        .animation(.snappy(duration: 0.15), value: damage)
+                    Spacer(minLength: 0)
+                    caption(named: hints)
+                        .font(.caption2.weight(.semibold))
+                        .lineLimit(1)
+                        .opacity(0.85)
+                        .padding(.horizontal, 6)
+                        .padding(.bottom, 3)
+                }
+                .allowsHitTesting(false)
+                if pendingDelta != 0 {
+                    Text(pendingDelta.formatted(.number.sign(strategy: .always())))
+                        .font(.caption.weight(.bold).monospacedDigit())
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 2)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topTrailing)
+                        .allowsHitTesting(false)
+                }
+            }
+            .foregroundStyle(fg)
+            .overlay {
+                if damage >= PlayerState.commanderLethal {
+                    RoundedRectangle(cornerRadius: 12).strokeBorder(fg, lineWidth: 3)
+                        .allowsHitTesting(false)
                 }
             }
         }
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("Commander damage from \(own ? "your own commander" : source.player.displayName)")
+        .accessibilityValue("\(damage)")
+    }
+
+    /// The owner's name, numbered when they run two commanders. The color
+    /// already says whose it is, so small tiles carry only the number.
+    @ViewBuilder
+    private func caption(named: Bool) -> some View {
+        let badge = source.player.commanderCount > 1
+            ? Image(systemName: "\(source.index + 1).circle.fill") : nil
+        if named {
+            HStack(spacing: 2) {
+                Text(own ? "You" : source.player.displayName)
+                badge
+            }
+        } else {
+            badge
+        }
+    }
+
+    private func half(delta: Int, glyph: String?, fg: Color) -> some View {
+        Rectangle()
+            .fill(fg.opacity(flashedDelta == delta ? 0.2 : 0))
+            .overlay(alignment: delta > 0 ? .bottomLeading : .topLeading) {
+                if let glyph {
+                    Image(systemName: glyph)
+                        .font(.caption.weight(.bold))
+                        .foregroundStyle(fg.opacity(0.35))
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 2)
+                }
+            }
+            .contentShape(Rectangle())
+            .onTapGesture {
+                change(delta)
+                UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                flashedDelta = delta
+                withAnimation(.easeOut(duration: 0.35)) { flashedDelta = 0 }
+                pendingDelta += delta
+                pendingResetTask?.cancel()
+                pendingResetTask = Task {
+                    try? await Task.sleep(for: .seconds(2))
+                    guard !Task.isCancelled else { return }
+                    pendingDelta = 0
+                }
+            }
     }
 }

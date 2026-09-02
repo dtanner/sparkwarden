@@ -22,7 +22,7 @@ Launching with `--start-game` skips setup and opens the table (for screenshots).
   progress, and the starter-roulette animation state. It keeps the screen
   awake while a game is running.
 - **Services** hold the testable rules, all pure value types:
-  - `Game` — life, poison, commander tax, commander damage (which also
+  - `Game` — life, poison, commander tax, per-commander damage (which also
     reduces life), death, per-seat facing overrides.
   - `TableLayout` — which seat goes where and which way it faces, for a
     given player count and orientation. Rotation is degrees clockwise;

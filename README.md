@@ -17,10 +17,15 @@ are in [CONTRIBUTING.md](CONTRIBUTING.md).
 - **Big, flat color blocks.** Tap the + half of your panel for +1 life,
   the − half for −1. The running change floats above your total.
 - **Casual and Commander modes.** Casual starts at 20 (or any life you
-  choose). Commander starts at 40 and adds commander tax and per-opponent
-  commander damage, which also comes off your life.
+  choose). Commander starts at 40 and adds commander tax and commander
+  damage, which also comes off your life. The shield button turns your panel
+  into a grid of tiles, one per commander at the table in its owner's color;
+  tap a tile's top half for +1 and bottom half for −1, and the panel returns
+  to your life total after a few seconds. Players running partners get a
+  second tile and a second tax counter, and your own commander has a tile
+  too in case it gets stolen.
 - **Poison** counter on every panel. A panel dims when its player is out —
-  0 life, 10 poison, or 21 commander damage from one opponent.
+  0 life, 10 poison, or 21 commander damage from one commander.
 - **Who goes first?** When a game starts, tap "Who goes first?" and a light spins around the table, lighting
   each panel as it passes, slowing down until it stops on the starter. Dismiss it if last game's loser is starting.
 - **Names, colors, and seating** are remembered between games. At the table,

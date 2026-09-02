@@ -18,6 +18,16 @@ struct PlayerEditView: View {
                         set: { model.update($0, seat: seat) }
                     )
                     Section("Player") { PlayerRow(player: binding) }
+                    if game.mode == .commander {
+                        Section {
+                            Toggle("Two commanders", isOn: Binding(
+                                get: { binding.wrappedValue.commanderCount > 1 },
+                                set: { binding.wrappedValue.commanderCount = $0 ? Player.maxCommanders : 1 }
+                            ))
+                        } footer: {
+                            Text("For partners and other pairs. Each commander's damage is tracked separately on every panel.")
+                        }
+                    }
                     if facings.count > 1 {
                     Section {
                         Picker("Faces", selection: Binding(

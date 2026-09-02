@@ -41,12 +41,77 @@ struct GameTests {
         #expect(game[0].isDead)
     }
 
+    @Test func partnersAreTrackedAsSeparateCommanders() {
+        var game = makeGame(mode: .commander)
+        var partnerPlayer = game.players[1]
+        partnerPlayer.commanderCount = 2
+        game.update(partnerPlayer, seat: 1)
+        game.addCommanderDamage(11, seat: 0, from: 1, commander: 0)
+        game.addCommanderDamage(11, seat: 0, from: 1, commander: 1)
+        #expect(game[0].life == 18)
+        #expect(!game[0].isDead, "damage from two commanders doesn't add up to lethal")
+        game.addCommanderDamage(10, seat: 0, from: 1, commander: 1)
+        #expect(game[0].isDead)
+    }
+
+    @Test func droppingASecondCommanderRefundsItsDamage() {
+        var game = makeGame(mode: .commander)
+        var player = game.players[1]
+        player.commanderCount = 2
+        game.update(player, seat: 1)
+        game.addCommanderDamage(3, seat: 0, from: 1, commander: 0)
+        game.addCommanderDamage(21, seat: 0, from: 1, commander: 1)
+        #expect(game[0].isDead)
+
+        player.commanderCount = 1
+        game.update(player, seat: 1)
+
+        #expect(!game[0].isDead)
+        #expect(game[0].life == 37)
+        #expect(game.commanderDamage(seat: 0, from: 1, commander: 1) == 0)
+        #expect(game.commanderDamage(seat: 0, from: 1, commander: 0) == 3)
+    }
+
+    @Test func ownCommanderCanDealDamage() {
+        var game = makeGame(mode: .commander)
+        game.addCommanderDamage(21, seat: 2, from: 2)
+        #expect(game[2].life == 19)
+        #expect(game[2].isDead)
+    }
+
+    @Test func damageSourcesListOpponentsThenSelf() {
+        var game = makeGame(mode: .commander, count: 3)
+        var partnerPlayer = game.players[0]
+        partnerPlayer.commanderCount = 2
+        game.update(partnerPlayer, seat: 0)
+
+        let sources = game.damageSources(for: 1)
+
+        #expect(sources.map(\.seat) == [0, 0, 2, 1])
+        #expect(sources.map(\.index) == [0, 1, 0, 0])
+        #expect(Set(sources.map(\.id)).count == 4)
+    }
+
     @Test func commanderTaxNeverNegative() {
         var game = makeGame(mode: .commander)
         game.addCommanderTax(-2, seat: 0)
-        #expect(game[0].commanderTax == 0)
+        #expect(game.commanderTax(seat: 0) == 0)
         game.addCommanderTax(2, seat: 0)
-        #expect(game[0].commanderTax == 2)
+        #expect(game.commanderTax(seat: 0) == 2)
+    }
+
+    @Test func partnersPayTaxSeparately() {
+        var game = makeGame(mode: .commander)
+        var player = game.players[0]
+        player.commanderCount = 2
+        game.update(player, seat: 0)
+        game.addCommanderTax(4, seat: 0, commander: 1)
+        #expect(game.commanderTax(seat: 0, commander: 0) == 0)
+        #expect(game.commanderTax(seat: 0, commander: 1) == 4)
+
+        player.commanderCount = 1
+        game.update(player, seat: 0)
+        #expect(game.commanderTax(seat: 0, commander: 1) == 0)
     }
 
     @Test func rotationOverridesCarryOverFromSettings() {

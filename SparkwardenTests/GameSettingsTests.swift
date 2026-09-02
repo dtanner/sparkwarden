@@ -57,6 +57,13 @@ struct GameSettingsTests {
         #expect(decoded == settings)
     }
 
+    @Test func playersSavedBeforePartnerSupportStillDecode() throws {
+        let json = #"{"id":"AA0E514C-956A-4DC5-8824-B4E48FBD33F5","name":"Dan","color":"teal"}"#
+        let player = try JSONDecoder().decode(Player.self, from: Data(json.utf8))
+        #expect(player.commanderCount == 1)
+        #expect(player.name == "Dan")
+    }
+
     @Test func settingsSavedBeforeRotationOverridesStillDecode() throws {
         var settings = GameSettings()
         settings.rotationOverrides = [0: 90]

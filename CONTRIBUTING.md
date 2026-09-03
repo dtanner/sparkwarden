@@ -4,15 +4,18 @@
 
 - **`AppModel`** (`@MainActor`, `@Observable`) is the single source of app
   state: persisted `GameSettings` (UserDefaults, JSON), the `Game` in
-  progress, and the starter-roulette animation state.
+  progress, the starter-roulette animation state, and which seat's focus
+  view is open.
 - **Services** (`Sparkwarden/Services/`) hold the testable rules as pure value
   types: `Game` (life, poison, commander counters, death, facing),
   `TableLayout` (where each seat's panel goes and which way it faces), and
   `StarterRoulette` (the decelerating light sequence).
 - **Views** (`Sparkwarden/Views/`) are thin SwiftUI. `GameView` lays panels
-  out per `TableLayout` and floats the center controls; `PlayerPanel` draws
-  one rotated seat; `SetupView`, `PlayerEditView`, and `HelpView`
-  are the sheets and setup screen.
+  out per `TableLayout`, floats the center controls, and overlays the open
+  `FocusView` (one commander seat filling the screen, with its damage tiles
+  and counters); `PlayerPanel` draws one rotated seat; `LifeControl` is the
+  tap-halves life total both share; `SetupView`, `PlayerEditView`, and
+  `HelpView` are the sheets and setup screen.
 
 Requires iOS 17+. Universal (iPhone and iPad), all orientations.
 
@@ -41,6 +44,8 @@ Always edit `project.yml`, never the generated `.xcodeproj`. The default
 simulator is `iPhone 17` (override with the `sim` variable in the justfile).
 Launch the app with the `--start-game` argument to skip setup and open the
 table directly, e.g. `xcrun simctl launch booted com.dantanner.sparkwarden --start-game`.
+Add `--focus-seat N` to also open seat N's focus view (commander games only);
+it closes itself after `AppModel.focusIdle`, so take the screenshot promptly.
 
 Device deploy (`just device`) needs a signing team — set `DEVELOPMENT_TEAM` in
 `project.yml`.

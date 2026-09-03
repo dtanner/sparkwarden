@@ -2,6 +2,7 @@ import SwiftUI
 
 /// The table: every seat's panel arranged so it faces its player, with the
 /// shared controls (starter roulette, seats, end game) floating in the center.
+/// A commander seat's focus view, when open, covers the whole table.
 struct GameView: View {
     @Environment(AppModel.self) private var model
     @State private var confirmingEnd = false
@@ -19,7 +20,13 @@ struct GameView: View {
                 centerControls
                     .position(x: layout.isLandscape ? geo.size.width * seam : geo.size.width / 2,
                               y: layout.isLandscape ? geo.size.height / 2 : geo.size.height * seam)
+                if let seat = model.focusedSeat {
+                    FocusView(seat: seat, defaultRotation: layout.defaultRotation(seat: seat),
+                              facings: layout.facings(seat: seat), size: geo.size)
+                        .transition(.scale(scale: 0.6).combined(with: .opacity))
+                }
             }
+            .animation(.snappy(duration: 0.25), value: model.focusedSeat)
         }
         .padding(4)
         .background(Color.black.ignoresSafeArea())
@@ -92,7 +99,7 @@ struct TableView: View {
                         ForEach(column, id: \.seat) { slot in
                             PlayerPanel(seat: slot.seat, defaultRotation: slot.rotation,
                                         facings: layout.facings(seat: slot.seat),
-                                        glyphEdge: layout.glyphEdge(seat: slot.seat),
+                                        outerEdge: layout.outerEdge(seat: slot.seat),
                                         size: CGSize(width: w, height: size.height / CGFloat(column.count)))
                         }
                     }
@@ -106,7 +113,7 @@ struct TableView: View {
                         ForEach(row, id: \.seat) { slot in
                             PlayerPanel(seat: slot.seat, defaultRotation: slot.rotation,
                                         facings: layout.facings(seat: slot.seat),
-                                        glyphEdge: layout.glyphEdge(seat: slot.seat),
+                                        outerEdge: layout.outerEdge(seat: slot.seat),
                                         size: CGSize(width: size.width / CGFloat(row.count), height: h))
                         }
                     }

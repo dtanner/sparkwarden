@@ -60,15 +60,18 @@ struct TableLayoutTests {
         }
     }
 
-    @Test func glyphEdgeIsAwayFromTheControlSeam() {
+    @Test func outerEdgeIsAwayFromTheControlSeam() {
         let six = TableLayout.layout(count: 6, landscape: false)
-        #expect(six.glyphEdge(seat: 0) == .top)
-        #expect(six.glyphEdge(seat: 2) == .bottom)
+        #expect(six.outerEdge(seat: 0) == .top)
+        #expect(six.outerEdge(seat: 2) == .bottom)
         let landscape = TableLayout.layout(count: 4, landscape: true)
-        #expect(landscape.glyphEdge(seat: 0) == .left)
-        #expect(landscape.glyphEdge(seat: 3) == .right)
+        #expect(landscape.outerEdge(seat: 0) == .left)
+        #expect(landscape.outerEdge(seat: 3) == .right)
         #expect(Facing.leadingEdge(rotation: 90) == .top)
         #expect(Facing.leadingEdge(rotation: 270) == .bottom)
+        #expect(Facing.topEdge(rotation: 0) == .top)
+        #expect(Facing.topEdge(rotation: 180) == .bottom)
+        #expect(Facing.topEdge(rotation: 90) == .right)
     }
 
     @Test func defaultRotationLookup() {

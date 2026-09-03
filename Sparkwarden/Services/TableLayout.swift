@@ -85,11 +85,11 @@ struct TableLayout: Equatable {
 }
 
 extension TableLayout {
-    /// The outer screen edge a panel's tap-zone glyphs should sit toward, so
+    /// The outer screen edge a panel's floating labels should sit toward, so
     /// they stay clear of the center controls on the seam between the first
     /// two groups. Portrait: top for the first row, bottom otherwise; landscape:
     /// left for the first column, right otherwise.
-    func glyphEdge(seat: Int) -> Facing {
+    func outerEdge(seat: Int) -> Facing {
         let inFirstGroup = groups.first?.contains { $0.seat == seat } ?? false
         if isLandscape { return inFirstGroup ? .left : .right }
         return inFirstGroup ? .top : .bottom
@@ -121,6 +121,12 @@ enum Facing: Int, CaseIterable, Identifiable {
         case 270: .bottom
         default: .left
         }
+    }
+
+    /// The screen edge a panel's top points to when the panel is rotated by
+    /// `rotation` degrees clockwise.
+    static func topEdge(rotation: Int) -> Facing {
+        (Facing(rawValue: rotation % 360) ?? .bottom).opposite
     }
 
     var opposite: Facing {

@@ -15,15 +15,21 @@ are in [CONTRIBUTING.md](CONTRIBUTING.md).
   Rotations stick to their spot at the table for the rest of the day, across
   games and seat swaps.
 - **Big, flat color blocks.** Tap the + half of your panel for +1 life,
-  the − half for −1. The running change floats above your total.
+  the − half for −1, anywhere above or below the number. The running change
+  floats above your total. Your name and poison counter sit in a column
+  down the side, out of the way of life taps.
 - **Casual and Commander modes.** Casual starts at 20 (or any life you
   choose). Commander starts at 40 and adds commander tax and commander
-  damage, which also comes off your life. The shield button turns your panel
-  into a grid of tiles, one per commander at the table in its owner's color;
-  tap a tile's top half for +1 and bottom half for −1, and the panel returns
-  to your life total after a few seconds. Players running partners get a
-  second tile and a second tax counter, and your own commander has a tile
-  too in case it gets stolen.
+  damage, which also comes off your life. Life is always one tap away on
+  the table; everything else lives behind the button down the side of your
+  panel. It shows your name and any counters that aren't zero, and tapping
+  it grows your seat to fill the screen: life with the same tap halves, one
+  big tile per commander at the table in its owner's color (tap the top half
+  for +1, the bottom for −1), and full-size poison and tax counters. Close
+  it with the corner button or a tap on the empty backdrop; left alone for
+  a while it dims as a warning, then closes itself. Players running
+  partners get a second tile and a second tax counter, and your own
+  commander has a tile too in case it gets stolen.
 - **Poison** counter on every panel. A panel dims when its player is out —
   0 life, 10 poison, or 21 commander damage from one commander.
 - **Who goes first?** When a game starts, tap "Who goes first?" and a light spins around the table, lighting

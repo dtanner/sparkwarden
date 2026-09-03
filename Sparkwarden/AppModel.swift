@@ -20,6 +20,15 @@ final class AppModel {
     /// or dismisses it, or the first counter changes.
     private(set) var showsStarterPrompt = false
     private var spinTask: Task<Void, Never>?
+    /// Seat whose focus view fills the screen, if any. It closes itself after
+    /// a pause without counter changes, since it hides everyone else's totals.
+    private(set) var focusedSeat: Int?
+    /// The idle close is moments away; the focus view dims as a warning so
+    /// nobody taps into the table underneath by surprise.
+    private(set) var focusClosingSoon = false
+    private var focusCloseTask: Task<Void, Never>?
+    private static let focusIdle: Duration = .seconds(20)
+    private static let focusWarning: Duration = .seconds(3)
 
     private let defaults: UserDefaults
 
@@ -55,6 +64,7 @@ final class AppModel {
         litSeat = nil
         starterSeat = nil
         showsStarterPrompt = false
+        unfocus()
         game = nil
         UIApplication.shared.isIdleTimerDisabled = false
     }
@@ -66,6 +76,7 @@ final class AppModel {
         change(&game!)
         starterSeat = nil
         showsStarterPrompt = false
+        if focusedSeat != nil { armFocusTimer() }
     }
 
     /// Player edits (name, color, facing) don't count as the game starting.
@@ -102,6 +113,42 @@ final class AppModel {
 
     func isLit(seat: Int) -> Bool {
         litSeat == seat || starterSeat == seat
+    }
+
+    // MARK: Focus view
+
+    func focus(seat: Int) {
+        guard let game, game.mode == .commander, seat < game.count else { return }
+        focusedSeat = seat
+        armFocusTimer()
+    }
+
+    func unfocus() {
+        holdFocus()
+        focusedSeat = nil
+    }
+
+    /// Stops the idle close while the player edit sheet is up over the focus
+    /// view; `touchFocus` starts it again when the sheet goes away.
+    func holdFocus() {
+        focusCloseTask?.cancel()
+        focusClosingSoon = false
+    }
+
+    func touchFocus() {
+        if focusedSeat != nil { armFocusTimer() }
+    }
+
+    private func armFocusTimer() {
+        holdFocus()
+        focusCloseTask = Task { [weak self] in
+            try? await Task.sleep(for: Self.focusIdle - Self.focusWarning)
+            guard !Task.isCancelled else { return }
+            self?.focusClosingSoon = true
+            try? await Task.sleep(for: Self.focusWarning)
+            guard !Task.isCancelled else { return }
+            self?.unfocus()
+        }
     }
 
     // MARK: Starter roulette

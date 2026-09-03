@@ -10,8 +10,8 @@ settings:
     ENABLE_USER_SCRIPT_SANDBOXING: YES
     # Bumped by `just release` — MARKETING_VERSION is the last released semver,
     # CURRENT_PROJECT_VERSION a monotonically increasing integer build number.
-    MARKETING_VERSION: "1.2.0"
-    CURRENT_PROJECT_VERSION: "5"
+    MARKETING_VERSION: "1.3.0"
+    CURRENT_PROJECT_VERSION: "6"
 targets:
   Sparkwarden:
     type: application

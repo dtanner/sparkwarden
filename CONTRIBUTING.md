@@ -44,8 +44,13 @@ Always edit `project.yml`, never the generated `.xcodeproj`. The default
 simulator is `iPhone 17` (override with the `sim` variable in the justfile).
 Launch the app with the `--start-game` argument to skip setup and open the
 table directly, e.g. `xcrun simctl launch booted com.dantanner.sparkwarden --start-game`.
-Add `--focus-seat N` to also open seat N's focus view (commander games only);
-it closes itself after `AppModel.focusIdle`, so take the screenshot promptly.
+Add `--demo-counters` to put sample damage, poison, and tax on seat 0
+(commander games of 3+), and `--focus-seat N` to open seat N's focus view
+(commander games only); it closes itself after `AppModel.focusIdle`, so take
+the screenshot promptly. Player names, colors, mode, and count can be passed
+as `-settings "<hex>"`, where hex is the JSON-encoded `GameSettings` as
+UserDefaults argument-domain data; it overrides the simulator's saved settings
+for that launch only.
 
 Device deploy (`just device`) needs a signing team — set `DEVELOPMENT_TEAM` in
 `project.yml`.
@@ -61,3 +66,11 @@ Service logic is covered by Swift Testing suites in `SparkwardenTests`
 `CURRENT_PROJECT_VERSION` in `project.yml`, archives, uploads to App Store
 Connect using the API key configured at the top of the justfile, then commits,
 tags `v<version>`, and pushes. The working tree must be clean.
+
+Uploading is not submitting. Once the build finishes processing, finish the
+release in [App Store Connect](https://appstoreconnect.apple.com): add the new
+version under the app's iOS tab, pick the build, paste What's New (and any
+listing changes) from `marketing/appstore.md`, replace screenshots the release
+made stale, and submit for review. The app subtitle and other app-level fields
+can only be edited while a version is in Prepare for Submission, so bundle
+those edits with a release.

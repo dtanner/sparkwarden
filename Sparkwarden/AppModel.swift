@@ -115,6 +115,17 @@ final class AppModel {
         litSeat == seat || starterSeat == seat
     }
 
+    /// Sample counters for screenshots: seat 0 has taken commander damage
+    /// from the next two seats, some poison, and cast its commander twice.
+    func seedDemoCounters() {
+        guard let game, game.mode == .commander, game.count >= 3 else { return }
+        self.game?.addCommanderDamage(12, seat: 0, from: 1)
+        self.game?.addCommanderDamage(5, seat: 0, from: 2)
+        self.game?.addPoison(2, seat: 0)
+        self.game?.addCommanderTax(4, seat: 0)
+        showsStarterPrompt = false
+    }
+
     // MARK: Focus view
 
     func focus(seat: Int) {

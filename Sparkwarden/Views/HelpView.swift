@@ -8,7 +8,7 @@ struct HelpView: View {
             List {
                 Section("At the table") {
                     Text("Put the device in the middle of the table. Each player's panel faces their seat — players sit along the long sides, and with 2, 3, or 5 players one person sits at the top end.")
-                    Text("Tap the + half of your panel for +1 life, the − half for −1 — anywhere above or below the number. The running change shows above your total for a couple of seconds. Your name and counters sit in a column down the side, out of the way.")
+                    Text("Tap the + half of your panel for +1 life, the − half for −1 — anywhere above or below the number. Swipe up anywhere on it for +10, down for −10. The running change shows in the column down the side for a few seconds, next to your name and counters, out of the way of taps.")
                     Text("Poison is the vial counter. A panel dims when its player is out: 0 life, 10 poison, or 21 commander damage from one commander.")
                 }
                 Section("Center controls") {
@@ -16,7 +16,7 @@ struct HelpView: View {
                     Label("End the game (asks first) and return to setup.", systemImage: "xmark")
                 }
                 Section("Commander") {
-                    Text("Commander mode starts at 40 life. Life works as always — tap your panel's + or − half — and everything else is behind the button down the side of your panel, which shows your name and any counters that aren't zero: poison, commander tax, and damage taken as a swatch in the attacker's color.")
+                    Text("Commander mode starts at 40 life. Life works as always — tap your panel's + or − half, or swipe for 10 — and everything else is behind the button down the side of your panel, which shows your name and any counters that aren't zero: poison, commander tax, and damage taken as a swatch in the attacker's color.")
                     Text("Tap that button and your seat grows to fill the screen. Life keeps its tap halves; beside it is one tile per commander at the table, each in its owner's color — tap a tile's top half for +1 damage, its bottom half for −1 — and along the bottom are poison and commander tax (steps of 2). Close it with the corner button or a tap on the empty backdrop; left alone for a while it dims as a warning, then closes itself.")
                     Text("Only combat damage counts. It also comes off your life, so don't tap it off your total as well. 21 from a single commander over the game is lethal, whoever controlled it at the time. A commander with infect deals its damage as poison instead; record it on the tile too, then put the life back.")
                     Text("Running partners? Turn on Two commanders from the ••• button by your name. You get a second tax counter, marked ① and ②, and every seat tracks each of your commanders separately. Your own commander has a tile too, for when it gets stolen and turned on you.")

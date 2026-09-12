@@ -16,6 +16,8 @@ struct FocusView: View {
     let size: CGSize
 
     @State private var editingPlayer = false
+    /// Sum of the last burst of life taps, shown in the life block's corner.
+    @State private var pendingDelta = 0
 
     var body: some View {
         if let game = model.game, seat < game.count {
@@ -108,12 +110,17 @@ struct FocusView: View {
     }
 
     /// The seat's own panel, in its full color, so life works here exactly
-    /// as it does at the table.
+    /// as it does at the table. Nothing floats over this view, so the
+    /// running change can sit in the block's corner.
     private func lifeBlock(player: Player, state: PlayerState, fg: Color) -> some View {
         GeometryReader { geo in
-            LifeControl(life: state.life, fg: fg, deltaLeading: true,
-                        numberSize: min(geo.size.width, geo.size.height) * 0.42) { delta in
+            let numberSize = min(geo.size.width, geo.size.height) * 0.42
+            LifeControl(life: state.life, fg: fg, numberSize: numberSize,
+                        pendingDelta: $pendingDelta) { delta in
                 model.modify { $0.addLife(delta, seat: seat) }
+            }
+            .overlay(alignment: .topLeading) {
+                PendingDeltaLabel(delta: pendingDelta, size: numberSize * 0.4).padding(12)
             }
         }
         .background(player.color.color(lit: false), in: RoundedRectangle(cornerRadius: 14))

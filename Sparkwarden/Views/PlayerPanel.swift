@@ -1,11 +1,12 @@
 import SwiftUI
 
-/// One seat's block of color: tap the top half for +1 life, the bottom half
-/// for −1, the full height of the panel. Everything else sits in a column
-/// down the side farther from the center controls, out of the tap zones: in
-/// casual the name and the poison counter; in commander one button that
-/// opens the seat's focus view, where everything but life is adjusted.
-/// Rotated to face its player; all controls rotate with it.
+/// One seat's block of color: tap the top half to add life, the bottom half
+/// to subtract, the full height of the panel. Everything else sits in a
+/// column down the side farther from the center controls, out of the tap
+/// zones: the running life change, and in casual the name and the poison
+/// counter; in commander one button that opens the seat's focus view, where
+/// everything but life is adjusted. Rotated to face its player; all
+/// controls rotate with it.
 struct PlayerPanel: View {
     @Environment(AppModel.self) private var model
     let seat: Int
@@ -17,6 +18,8 @@ struct PlayerPanel: View {
     let size: CGSize
 
     @State private var editingPlayer = false
+    /// Sum of the last burst of life taps, shown in the column for a moment.
+    @State private var pendingDelta = 0
     /// Another panel is being dragged over this one to swap seats.
     @State private var isDropTarget = false
 
@@ -59,26 +62,29 @@ struct PlayerPanel: View {
     private func panel(game: Game, player: Player, state: PlayerState, inner: CGSize, rotation: Int) -> some View {
         let fg = player.color.foreground
         let lit = model.isLit(seat: seat)
-        // The column, the running change, and the "goes first" badge (the
-        // last two never shown at the same time) all keep to the side of the
-        // panel farther from the center controls. When the controls sit
-        // along the panel's top instead, the column's contents gather at
-        // its bottom.
+        // The column (with the running change) and the "goes first" badge
+        // keep to the side of the panel farther from the center controls.
+        // When the controls sit along the panel's top instead, the column's
+        // contents gather at its bottom.
         let outerLeading = Facing.leadingEdge(rotation: rotation) != outerEdge.opposite
         let seamAtTop = Facing.topEdge(rotation: rotation) == outerEdge.opposite
+        let deltaSize = min(inner.width, inner.height) * 0.42 * 0.4
         let column = Group {
             if game.mode == .commander {
-                focusColumn(game: game, player: player, state: state, fg: fg)
+                focusColumn(game: game, player: player, state: state, fg: fg,
+                            deltaSize: deltaSize, gatherAtBottom: seamAtTop)
             } else {
-                casualColumn(player: player, state: state, fg: fg, gatherAtBottom: seamAtTop)
+                casualColumn(player: player, state: state, fg: fg,
+                             deltaSize: deltaSize, gatherAtBottom: seamAtTop)
             }
         }
         .frame(maxWidth: inner.width * 0.4, maxHeight: .infinity, alignment: seamAtTop ? .bottom : .top)
         .layoutPriority(1)
         .padding(outerLeading ? .leading : .trailing, 10)
         .padding(.vertical, 10)
-        let life = LifeControl(life: state.life, fg: fg, deltaLeading: outerLeading,
-                               numberSize: min(inner.width, inner.height) * 0.42) { delta in
+        let life = LifeControl(life: state.life, fg: fg,
+                               numberSize: min(inner.width, inner.height) * 0.42,
+                               pendingDelta: $pendingDelta) { delta in
             model.modify { $0.addLife(delta, seat: seat) }
         }
         .overlay(alignment: outerLeading ? .topLeading : .topTrailing) {
@@ -124,15 +130,19 @@ struct PlayerPanel: View {
         }
     }
 
-    /// Casual: the name at the top of the column and poison at the bottom —
-    /// or both gathered at the bottom when the center controls run along
-    /// the panel's top.
-    private func casualColumn(player: Player, state: PlayerState, fg: Color, gatherAtBottom: Bool) -> some View {
+    /// Casual: the name at the top of the column, poison at the bottom, and
+    /// the running change between them — or all gathered at the bottom, the
+    /// change on top, when the center controls run along the panel's top.
+    private func casualColumn(player: Player, state: PlayerState, fg: Color,
+                              deltaSize: CGFloat, gatherAtBottom: Bool) -> some View {
         VStack(alignment: .leading, spacing: 6) {
             if gatherAtBottom {
                 Spacer(minLength: 0)
+                PendingDeltaLabel(delta: pendingDelta, size: deltaSize)
             } else {
                 nameButton(player)
+                Spacer(minLength: 0)
+                PendingDeltaLabel(delta: pendingDelta, size: deltaSize)
                 Spacer(minLength: 0)
             }
             CounterChip(systemImage: "cross.vial.fill", value: state.poison, fg: fg) { delta in
@@ -152,10 +162,21 @@ struct PlayerPanel: View {
     }
 
     /// Commander: the panel's one button, no bigger than its contents so the
-    /// life total stays the panel's main event. Shows the name and whatever
-    /// counters are nonzero — poison, tax per commander, and damage taken as
-    /// a swatch in the attacker's color — and opens the focus view.
-    private func focusColumn(game: Game, player: Player, state: PlayerState, fg: Color) -> some View {
+    /// life total stays the panel's main event, with the running change on
+    /// the side of it away from the center controls. The button shows the
+    /// name and whatever counters are nonzero — poison, tax per commander,
+    /// and damage taken as a swatch in the attacker's color — and opens the
+    /// focus view.
+    private func focusColumn(game: Game, player: Player, state: PlayerState, fg: Color,
+                             deltaSize: CGFloat, gatherAtBottom: Bool) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            if gatherAtBottom { PendingDeltaLabel(delta: pendingDelta, size: deltaSize) }
+            focusButton(game: game, player: player, state: state, fg: fg)
+            if !gatherAtBottom { PendingDeltaLabel(delta: pendingDelta, size: deltaSize) }
+        }
+    }
+
+    private func focusButton(game: Game, player: Player, state: PlayerState, fg: Color) -> some View {
         let sources = game.damageSources(for: seat)
         let hasCounters = state.poison > 0
             || (0..<player.commanderCount).contains { state.commanderTax[$0] > 0 }

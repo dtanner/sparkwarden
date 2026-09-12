@@ -15,9 +15,10 @@ are in [CONTRIBUTING.md](CONTRIBUTING.md).
   Rotations stick to their spot at the table for the rest of the day, across
   games and seat swaps.
 - **Big, flat color blocks.** Tap the + half of your panel for +1 life,
-  the − half for −1, anywhere above or below the number. The running change
-  floats above your total. Your name and poison counter sit in a column
-  down the side, out of the way of life taps.
+  the − half for −1, anywhere above or below the number; swipe up for +10
+  or down for −10. The running change,
+  your name, and your poison counter sit in a column down the side, out of
+  the way of life taps.
 - **Casual and Commander modes.** Casual starts at 20 (or any life you
   choose). Commander starts at 40 and adds commander tax and commander
   damage, which also comes off your life. Life is always one tap away on

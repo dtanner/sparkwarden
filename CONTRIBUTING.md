@@ -17,7 +17,9 @@
   tap-halves life total both share; `SetupView`, `PlayerEditView`, and
   `HelpView` are the sheets and setup screen.
 
-Requires iOS 17+. Universal (iPhone and iPad), all orientations.
+Requires iOS 17+. Universal (iPhone and iPad), landscape only (set in
+`project.yml`; `TableLayout` still handles portrait sizes for iPad
+windowing modes that ignore the lock).
 
 ## Build & run
 

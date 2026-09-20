@@ -29,7 +29,8 @@ build: generate
 run: build
     #!/usr/bin/env bash
     set -euo pipefail
-    open -a Simulator
+    # Xcode 27 replaced Simulator.app with DeviceHub.app.
+    open -a Simulator 2>/dev/null || open -a DeviceHub
     xcrun simctl boot "{{sim}}" 2>/dev/null || true
     app="build/dd/Build/Products/Debug-iphonesimulator/{{scheme}}.app"
     xcrun simctl install booted "$app"

@@ -10,8 +10,8 @@ are in [CONTRIBUTING.md](CONTRIBUTING.md).
 ## Features
 
 - **2–6 players.** Panels are arranged along the long sides of the device
-  (with the odd player at the top end) and rotated toward each seat. Works
-  in portrait and landscape; rotate any panel a quarter turn for odd tables.
+  (with the odd player at the top end) and rotated toward each seat. The
+  app stays in landscape; rotate any panel a quarter turn for odd tables.
   Rotations stick to their spot at the table for the rest of the day, across
   games and seat swaps.
 - **Big, flat color blocks.** Tap the + half of your panel for +1 life,

@@ -51,8 +51,11 @@ Add `--demo-counters` to put sample damage, poison, and tax on seat 0
 (commander games only); it closes itself after `AppModel.focusIdle`, so take
 the screenshot promptly. Player names, colors, mode, and count can be passed
 as `-settings "<hex>"`, where hex is the JSON-encoded `GameSettings` as
-UserDefaults argument-domain data; it overrides the simulator's saved settings
-for that launch only.
+UserDefaults argument-domain data, angle brackets included (`-settings "<7b22...7d>"`);
+it overrides the simulator's saved settings for that launch only. Encode
+`rotationOverrides` as a JSON object (`{}`), not an array, or the decode fails
+and the app silently falls back to default settings. With more than one
+simulator booted, pass the device UDID instead of `booted`.
 
 Device deploy (`just device`) needs a signing team — set `DEVELOPMENT_TEAM` in
 `project.yml`.

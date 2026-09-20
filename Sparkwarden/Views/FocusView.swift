@@ -66,13 +66,15 @@ struct FocusView: View {
                             .onTapGesture {}
                     }
                     FlowLayout(spacing: 12) {
-                        CounterChip(systemImage: "cross.vial.fill", value: state.poison, large: true, fg: fg) { delta in
+                        CounterChip(systemImage: "cross.vial.fill", value: state.poison, large: true,
+                                    caption: "Poison", fg: fg) { delta in
                             model.modify { $0.addPoison(delta, seat: seat) }
                         }
                         ForEach(0..<player.commanderCount, id: \.self) { commander in
                             CounterChip(systemImage: "crown.fill",
                                         badge: player.commanderCount > 1 ? "\(commander + 1).circle.fill" : nil,
-                                        value: state.commanderTax[commander], step: 2, large: true, fg: fg) { delta in
+                                        value: state.commanderTax[commander], step: 2, large: true,
+                                        caption: "Commander tax", fg: fg) { delta in
                                 model.modify { $0.addCommanderTax(delta, seat: seat, commander: commander) }
                             }
                         }

@@ -17,9 +17,22 @@ struct HelpView: View {
                 }
                 Section("Commander") {
                     Text("Commander mode starts at 40 life. Life works as always — tap your panel's + or − half, or swipe for 10 — and everything else is behind the button down the side of your panel, which shows your name and any counters that aren't zero: poison, commander tax, and damage taken as a swatch in the attacker's color.")
-                    Text("Tap that button and your seat grows to fill the screen. Life keeps its tap halves; beside it is one tile per commander at the table, each in its owner's color — tap a tile's top half for +1 damage, its bottom half for −1 — and along the bottom are poison and commander tax (steps of 2). Close it with the corner button or a tap on the empty backdrop; left alone for a while it dims as a warning, then closes itself.")
+                    Text("Tap that button and your seat grows to fill the screen. Life keeps its tap halves; beside it is one tile per commander at the table, each in its owner's color — tap a tile's top half for +1 damage, its bottom half for −1 — and along the bottom are the poison and commander tax counters, each labeled — tax moves by 2 per tap. Close it with the corner button or a tap on the empty backdrop; left alone for a while it dims as a warning, then closes itself.")
                     Text("Only combat damage counts. It also comes off your life, so don't tap it off your total as well. 21 from a single commander over the game is lethal, whoever controlled it at the time. A commander with infect deals its damage as poison instead; record it on the tile too, then put the life back.")
                     Text("Running partners? Turn on Two commanders from the ••• button by your name. You get a second tax counter, marked ① and ②, and every seat tracks each of your commanders separately. Your own commander has a tile too, for when it gets stolen and turned on you.")
+                }
+                Section("Counter icons") {
+                    Label("Poison. 10 is lethal.", systemImage: "cross.vial.fill")
+                    Label("Commander tax: the extra mana your commander costs from the command zone. Each tap moves it by 2, since the tax rises by {2} per cast. Not a win counter.", systemImage: "crown.fill")
+                    Label {
+                        Text("Commander damage taken, in the attacking commander's color.")
+                    } icon: {
+                        RoundedRectangle(cornerRadius: 4)
+                            .fill(.tint)
+                            .overlay(RoundedRectangle(cornerRadius: 4).strokeBorder(.secondary.opacity(0.5)))
+                            .frame(width: 18, height: 18)
+                    }
+                    Label("Which of a partner pair the counter belongs to.", systemImage: "1.circle.fill")
                 }
                 Section("Seats") {
                     Text("Names and colors are set on the setup screen and remembered for next time. Reset Names puts every seat back to “Player N”; colors are kept.")

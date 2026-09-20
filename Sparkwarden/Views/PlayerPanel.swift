@@ -267,7 +267,9 @@ private struct DamageBadge: View {
     }
 }
 
-/// A `− icon value +` pill: small in a panel's side column, large in the focus view.
+/// A `− icon value +` pill: small in a panel's side column, large in the
+/// focus view, where a caption under the number names the counter and
+/// shows its step when it isn't 1 — the icons alone aren't self-explanatory.
 struct CounterChip: View {
     let systemImage: String
     /// A second, smaller symbol after the icon — the commander number on a
@@ -277,18 +279,27 @@ struct CounterChip: View {
     var step = 1
     /// Focus-view size: taller, with buttons well past the 44pt minimum.
     var large = false
+    /// Name of the counter, shown under the number in the large size.
+    var caption: String? = nil
     let fg: Color
     let change: (Int) -> Void
 
     var body: some View {
         HStack(spacing: 0) {
             chipButton("minus") { change(-step) }
-            HStack(spacing: 3) {
-                Image(systemName: systemImage).font(large ? .title3 : .subheadline)
-                if let badge { Image(systemName: badge).font(large ? .caption : .caption2) }
-                Text("\(value)").monospacedDigit()
+            VStack(spacing: 1) {
+                HStack(spacing: 3) {
+                    Image(systemName: systemImage).font(large ? .title3 : .subheadline)
+                    if let badge { Image(systemName: badge).font(large ? .caption : .caption2) }
+                    Text("\(value)").monospacedDigit()
+                }
+                .font((large ? Font.title3 : .subheadline).weight(.semibold))
+                if large, let caption {
+                    Text(step == 1 ? caption : "\(caption) ±\(step)")
+                        .font(.caption.weight(.medium))
+                        .opacity(0.85)
+                }
             }
-            .font((large ? Font.title3 : .subheadline).weight(.semibold))
             .frame(minWidth: large ? 64 : 34)
             chipButton("plus") { change(step) }
         }

@@ -26,7 +26,8 @@ are in [CONTRIBUTING.md](CONTRIBUTING.md).
   panel. It shows your name and any counters that aren't zero, and tapping
   it grows your seat to fill the screen: life with the same tap halves, one
   big tile per commander at the table in its owner's color (tap the top half
-  for +1, the bottom for −1), and full-size poison and tax counters. Close
+  for +1, the bottom for −1), and full-size, labeled poison and commander
+  tax counters (tax steps by 2 per tap). Help lists what each icon means. Close
   it with the corner button or a tap on the empty backdrop; left alone for
   a while it dims as a warning, then closes itself. Players running
   partners get a second tile and a second tax counter, and your own

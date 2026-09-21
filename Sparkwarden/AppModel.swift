@@ -56,6 +56,7 @@ final class AppModel {
         starterSeat = nil
         showsStarterPrompt = true
         UIApplication.shared.isIdleTimerDisabled = true
+        OrientationLock.lockToCurrent()
     }
 
     func endGame() {
@@ -67,6 +68,7 @@ final class AppModel {
         unfocus()
         game = nil
         UIApplication.shared.isIdleTimerDisabled = false
+        OrientationLock.unlock()
     }
 
     /// Mutates the game in place; any counter change also clears the starter

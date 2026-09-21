@@ -36,17 +36,21 @@ targets:
         CFBundleVersion: $(CURRENT_PROJECT_VERSION)
         ITSAppUsesNonExemptEncryption: false
         UILaunchScreen: {}
-        # Landscape only: the device lies flat on the table, and rotating the
-        # whole table when someone bumps it is disorienting. iPad honors the
+        # All orientations are allowed here; AppModel locks the table to
+        # landscape at runtime for the duration of a game. iPad honors that
         # lock only for full-screen apps, so UIRequiresFullScreen stays on;
         # where iPadOS windows the app anyway, GameView still lays out from
         # its actual size.
         UIRequiresFullScreen: true
         UIUserInterfaceStyle: Dark
         UISupportedInterfaceOrientations:
+          - UIInterfaceOrientationPortrait
+          - UIInterfaceOrientationPortraitUpsideDown
           - UIInterfaceOrientationLandscapeLeft
           - UIInterfaceOrientationLandscapeRight
         UISupportedInterfaceOrientations~ipad:
+          - UIInterfaceOrientationPortrait
+          - UIInterfaceOrientationPortraitUpsideDown
           - UIInterfaceOrientationLandscapeLeft
           - UIInterfaceOrientationLandscapeRight
   SparkwardenTests:

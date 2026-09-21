@@ -5,7 +5,10 @@ struct ContentView: View {
 
     var body: some View {
         if model.game != nil {
-            GameView()
+            GameHost(model: model)
+                .ignoresSafeArea()
+                .statusBarHidden()
+                .persistentSystemOverlays(.hidden)
         } else {
             SetupView()
         }

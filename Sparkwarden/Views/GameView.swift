@@ -31,8 +31,6 @@ struct GameView: View {
         .padding(4)
         .background(Color.black.ignoresSafeArea())
         .ignoresSafeArea(edges: .bottom)
-        .statusBarHidden()
-        .persistentSystemOverlays(.hidden)
         .confirmationDialog("End this game?", isPresented: $confirmingEnd, titleVisibility: .visible) {
             Button("End Game", role: .destructive) { model.endGame() }
         } message: {

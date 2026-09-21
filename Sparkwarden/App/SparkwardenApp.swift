@@ -2,6 +2,7 @@ import SwiftUI
 
 @main
 struct SparkwardenApp: App {
+    @UIApplicationDelegateAdaptor(OrientationLock.self) private var orientationLock
     @State private var model = {
         let model = AppModel()
         // `--start-game` jumps straight to the table for screenshots,

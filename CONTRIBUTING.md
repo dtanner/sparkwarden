@@ -17,9 +17,13 @@
   tap-halves life total both share; `SetupView`, `PlayerEditView`, and
   `HelpView` are the sheets and setup screen.
 
-Requires iOS 17+. Universal (iPhone and iPad), landscape only (set in
-`project.yml`; `TableLayout` still handles portrait sizes for iPad
-windowing modes that ignore the lock).
+Requires iOS 17+. Universal (iPhone and iPad). Setup and help rotate
+freely; `OrientationLock` freezes the screen in its current orientation
+while a game runs, via the app-delegate mask that iOS 17–25 honor (on iPad
+only because the app requires full screen) and, on iOS 26+, the
+per-view-controller lock preference that iPadOS is moving to.
+`TableLayout` still handles any size for iPad windowing modes that ignore
+both.
 
 ## Build & run
 

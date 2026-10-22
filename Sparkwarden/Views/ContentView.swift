@@ -11,6 +11,7 @@ struct ContentView: View {
                 .persistentSystemOverlays(.hidden)
         } else {
             SetupView()
+                .environment(\.colorTheme, model.settings.theme)
         }
     }
 }

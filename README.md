@@ -42,6 +42,11 @@ are in [CONTRIBUTING.md](CONTRIBUTING.md).
   long-press a panel and drop it on another to trade seats — the two players
   swap places, counters and all. Reset Names on the setup screen clears names
   back to "Player N".
+- **Color themes.** Classic, Synthwave, Woodblock, Autumn Forest,
+  Tropical, Desert Bloom, Ember, Arcade, or Bauhaus. Pick one on the setup
+  screen and every seat and the table are repainted in that palette, with
+  colors named to match (Woodblock's are Vermilion, Indigo, Pine, Washi,
+  Sumi…). Each player keeps their seat's color slot across themes.
 - The screen stays awake while a game is running. End Game asks first.
 
 ## Privacy

@@ -29,6 +29,9 @@ Launching with `--start-game` skips setup and opens the table (for screenshots).
     0 faces the bottom edge, 90 the left, 180 the top, 270 the right.
   - `StarterRoulette` — the decelerating sequence of seats the "spinning
     light" visits before landing on the winner.
+- **`ColorTheme`** names and paints every `PlayerColor` slot and the table
+  backdrop (a slot like `.red` is "Vermilion" in Woodblock);
+  views read it from the `\.colorTheme` environment value.
 - **Views** are thin SwiftUI. `GameView` builds the `TableLayout` from the
   screen size and floats the center controls (the dismissible starter prompt, then end game).
   `PlayerPanel` draws one seat, rotated as a whole so every control faces

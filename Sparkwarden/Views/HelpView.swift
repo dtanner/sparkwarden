@@ -36,6 +36,7 @@ struct HelpView: View {
                 }
                 Section("Seats") {
                     Text("Names and colors are set on the setup screen and remembered for next time. Reset Names puts every seat back to “Player N”; colors are kept.")
+                    Text("Theme, on the setup screen, repaints the table and every player's color in one of nine palettes, each with its own color names. Players keep their spot in the palette, so whoever was Hot Pink in Synthwave is Vermilion in Woodblock.")
                     Text("To match where people are sitting, long-press a panel and drop it on another: the two players trade places, counters included. Seating is remembered for the next game.")
                     Text("The ••• button by a player's name — on the panel in casual games, in the full-screen view in commander games — renames or recolors that player, sets whether they run two commanders, or changes which edge of the screen the panel faces for odd table shapes. Facing belongs to the spot, not the player — it stays put through seat swaps and later games, until the day ends.")
                 }

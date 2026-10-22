@@ -28,8 +28,11 @@ struct GameView: View {
             }
             .animation(.snappy(duration: 0.25), value: model.focusedSeat)
         }
+        // The table runs in its own hosting controller, outside ContentView's
+        // environment, so the theme is handed down from here.
+        .environment(\.colorTheme, model.settings.theme)
         .padding(4)
-        .background(Color.black.ignoresSafeArea())
+        .background(model.settings.theme.backdrop.ignoresSafeArea())
         .ignoresSafeArea(edges: .bottom)
         .confirmationDialog("End this game?", isPresented: $confirmingEnd, titleVisibility: .visible) {
             Button("End Game", role: .destructive) { model.endGame() }

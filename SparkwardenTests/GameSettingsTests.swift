@@ -64,7 +64,7 @@ struct GameSettingsTests {
         #expect(player.name == "Dan")
     }
 
-    @Test func settingsSavedBeforeRotationOverridesStillDecode() throws {
+    @Test func settingsSavedBeforeThemesAndRotationOverridesStillDecode() throws {
         var settings = GameSettings()
         settings.rotationOverrides = [0: 90]
         settings.rotationOverridesDate = .now
@@ -72,11 +72,22 @@ struct GameSettingsTests {
             try JSONSerialization.jsonObject(with: JSONEncoder().encode(settings)) as? [String: Any])
         legacy.removeValue(forKey: "rotationOverrides")
         legacy.removeValue(forKey: "rotationOverridesDate")
+        legacy.removeValue(forKey: "theme")
 
         let decoded = try JSONDecoder().decode(
             GameSettings.self, from: JSONSerialization.data(withJSONObject: legacy))
 
         #expect(decoded.rotationOverrides.isEmpty)
         #expect(decoded.rotationOverridesDate == nil)
+        #expect(decoded.theme == .classic)
+    }
+
+    @Test func themeRoundTripsThroughJSON() throws {
+        var settings = GameSettings()
+        settings.theme = .woodblock
+
+        let decoded = try JSONDecoder().decode(GameSettings.self, from: JSONEncoder().encode(settings))
+
+        #expect(decoded.theme == .woodblock)
     }
 }

@@ -10,6 +10,11 @@
   types: `Game` (life, poison, commander counters, death, facing),
   `TableLayout` (where each seat's panel goes and which way it faces), and
   `StarterRoulette` (the decelerating light sequence).
+- **`ColorTheme`** (`Sparkwarden/Models/`) gives each `PlayerColor` slot a
+  name and shade per theme, plus the table backdrop, and picks dark or white
+  text by contrast. Views read it from the `colorTheme` environment value, which
+  `ContentView` (setup) and `GameView` (the table, in its own hosting
+  controller) set from `GameSettings.theme`.
 - **Views** (`Sparkwarden/Views/`) are thin SwiftUI. `GameView` lays panels
   out per `TableLayout`, floats the center controls, and overlays the open
   `FocusView` (one commander seat filling the screen, with its damage tiles
@@ -53,7 +58,7 @@ table directly, e.g. `xcrun simctl launch booted com.dantanner.sparkwarden --sta
 Add `--demo-counters` to put sample damage, poison, and tax on seat 0
 (commander games of 3+), and `--focus-seat N` to open seat N's focus view
 (commander games only); it closes itself after `AppModel.focusIdle`, so take
-the screenshot promptly. Player names, colors, mode, and count can be passed
+the screenshot promptly. Player names, colors, mode, count, and theme can be passed
 as `-settings "<hex>"`, where hex is the JSON-encoded `GameSettings` as
 UserDefaults argument-domain data, angle brackets included (`-settings "<7b22...7d>"`);
 it overrides the simulator's saved settings for that launch only. Encode

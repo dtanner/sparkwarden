@@ -9,6 +9,7 @@ import SwiftUI
 /// controls rotate with it.
 struct PlayerPanel: View {
     @Environment(AppModel.self) private var model
+    @Environment(\.colorTheme) private var theme
     let seat: Int
     let defaultRotation: Int
     let facings: [Facing]
@@ -60,7 +61,7 @@ struct PlayerPanel: View {
     /// so content that doesn't fit spills rather than stretching the panel.
     @ViewBuilder
     private func panel(game: Game, player: Player, state: PlayerState, inner: CGSize, rotation: Int) -> some View {
-        let fg = player.color.foreground
+        let fg = theme.foreground(player.color)
         let lit = model.isLit(seat: seat)
         // The column (with the running change) and the "goes first" badge
         // keep to the side of the panel farther from the center controls.
@@ -91,7 +92,7 @@ struct PlayerPanel: View {
             starterBadge(fg: fg).padding(10)
         }
         RoundedRectangle(cornerRadius: Self.cornerRadius)
-            .fill(player.color.color(lit: lit))
+            .fill(theme.fill(player.color, lit: lit))
             .animation(.easeOut(duration: 0.12), value: lit)
             .overlay {
                 HStack(spacing: 0) {
@@ -245,13 +246,14 @@ private struct StatusBadge<Content: View>: View {
 /// Damage taken from one commander: a swatch in its owner's color, numbered
 /// when the owner runs two, and the total.
 private struct DamageBadge: View {
+    @Environment(\.colorTheme) private var theme
     let source: Game.Commander
     let damage: Int
 
     var body: some View {
         HStack(spacing: 5) {
             RoundedRectangle(cornerRadius: 4)
-                .fill(source.player.color.color(lit: false))
+                .fill(theme.fill(source.player.color, lit: false))
                 .overlay(RoundedRectangle(cornerRadius: 4).strokeBorder(.white.opacity(0.35)))
                 .frame(width: 16, height: 16)
             if source.player.commanderCount > 1 {

@@ -41,6 +41,14 @@ struct SetupView: View {
                     }
                 }
                 Section {
+                    NavigationLink {
+                        ThemePicker(theme: $model.settings.theme,
+                                    colors: model.settings.seated.map(\.color))
+                    } label: {
+                        LabeledContent("Theme", value: model.settings.theme.label)
+                    }
+                }
+                Section {
                     ForEach($model.settings.players.prefix(model.settings.playerCount)) { $player in
                         PlayerRow(player: $player)
                     }
@@ -82,6 +90,7 @@ struct SetupView: View {
 
 /// One seat in the roster: name text field plus a color swatch menu.
 struct PlayerRow: View {
+    @Environment(\.colorTheme) private var theme
     @Binding var player: Player
 
     var body: some View {
@@ -92,15 +101,15 @@ struct PlayerRow: View {
                         player.color = color
                     } label: {
                         Label {
-                            Text(color.label)
+                            Text(theme.swatch(color).name)
                         } icon: {
-                            Image(uiImage: color.swatch(selected: player.color == color))
+                            Image(uiImage: color.swatch(in: theme, selected: player.color == color))
                         }
                     }
                 }
             } label: {
                 Circle()
-                    .fill(player.color.color(lit: false))
+                    .fill(theme.fill(player.color, lit: false))
                     .frame(width: 28, height: 28)
                     .overlay(Circle().strokeBorder(.white.opacity(0.3)))
             }
@@ -112,18 +121,60 @@ struct PlayerRow: View {
     }
 }
 
+/// Every theme, each previewed with the seated players' colors on its backdrop.
+struct ThemePicker: View {
+    @Binding var theme: ColorTheme
+    let colors: [PlayerColor]
+
+    var body: some View {
+        List(ColorTheme.allCases) { option in
+            Button {
+                theme = option
+            } label: {
+                VStack(alignment: .leading, spacing: 10) {
+                    HStack {
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(option.label).font(.headline)
+                            Text(option.summary).font(.subheadline).foregroundStyle(.secondary)
+                        }
+                        Spacer()
+                        if option == theme {
+                            Image(systemName: "checkmark").font(.headline).foregroundStyle(.tint)
+                        }
+                    }
+                    HStack(spacing: 4) {
+                        ForEach(Array(colors.enumerated()), id: \.offset) { _, color in
+                            RoundedRectangle(cornerRadius: 8)
+                                .fill(option.fill(color, lit: false))
+                                .overlay(Text("20").font(.headline.monospacedDigit())
+                                    .foregroundStyle(option.foreground(color)))
+                                .frame(height: 44)
+                        }
+                    }
+                    .padding(4)
+                    .background(option.backdrop, in: RoundedRectangle(cornerRadius: 11))
+                }
+                .padding(.vertical, 4)
+            }
+            .foregroundStyle(.primary)
+        }
+        .navigationTitle("Theme")
+        .navigationBarTitleDisplayMode(.inline)
+    }
+}
+
 private extension PlayerColor {
     /// Menu items draw their icons as template images, which would flatten
     /// every swatch to white; a pre-rendered original-mode image keeps the color.
-    func swatch(selected: Bool) -> UIImage {
+    func swatch(in theme: ColorTheme, selected: Bool) -> UIImage {
         let size = CGSize(width: 24, height: 24)
         let image = UIGraphicsImageRenderer(size: size).image { ctx in
-            UIColor(color(lit: false)).setFill()
+            UIColor(theme.fill(self, lit: false)).setFill()
             ctx.cgContext.fillEllipse(in: CGRect(origin: .zero, size: size))
             if selected {
                 let check = UIImage(systemName: "checkmark", withConfiguration:
                     UIImage.SymbolConfiguration(pointSize: 12, weight: .bold))!
-                    .withTintColor(UIColor(foreground), renderingMode: .alwaysOriginal)
+                    .withTintColor(UIColor(theme.foreground(self)), renderingMode: .alwaysOriginal)
                 let r = CGRect(x: (size.width - check.size.width) / 2,
                                y: (size.height - check.size.height) / 2,
                                width: check.size.width, height: check.size.height)

@@ -10,6 +10,7 @@ import SwiftUI
 /// nobody taps into the table underneath by surprise.
 struct FocusView: View {
     @Environment(AppModel.self) private var model
+    @Environment(\.colorTheme) private var theme
     let seat: Int
     let defaultRotation: Int
     let facings: [Facing]
@@ -41,11 +42,11 @@ struct FocusView: View {
     /// Life sits beside the tiles when the view is wider than tall and above
     /// them otherwise, so a seat facing a short edge gets a sensible stack.
     private func content(player: Player, state: PlayerState, inner: CGSize) -> some View {
-        let fg = player.color.foreground
+        let fg = theme.foreground(player.color)
         let wide = inner.width >= inner.height
         let split = wide ? AnyLayout(HStackLayout(spacing: 12)) : AnyLayout(VStackLayout(spacing: 12))
         return RoundedRectangle(cornerRadius: PlayerPanel.cornerRadius)
-            .fill(player.color.color(lit: false))
+            .fill(theme.fill(player.color, lit: false))
             .overlay {
                 RoundedRectangle(cornerRadius: PlayerPanel.cornerRadius)
                     .fill(.black.opacity(model.focusClosingSoon ? 0.6 : 0.3))
@@ -125,7 +126,7 @@ struct FocusView: View {
                 PendingDeltaLabel(delta: pendingDelta, size: numberSize * 0.4).padding(12)
             }
         }
-        .background(player.color.color(lit: false), in: RoundedRectangle(cornerRadius: 14))
+        .background(theme.fill(player.color, lit: false), in: RoundedRectangle(cornerRadius: 14))
         .clipShape(RoundedRectangle(cornerRadius: 14))
     }
 }
@@ -185,6 +186,7 @@ struct DamageTileGrid: View {
 /// The seat's own commander gets a faint outline, since its tile is the one
 /// color that matches the backdrop.
 private struct DamageTile: View {
+    @Environment(\.colorTheme) private var theme
     let source: Game.Commander
     /// This is the seat's own commander.
     let own: Bool
@@ -198,11 +200,11 @@ private struct DamageTile: View {
 
     var body: some View {
         let color = source.player.color
-        let fg = color.foreground
+        let fg = theme.foreground(color)
         GeometryReader { geo in
             let side = min(geo.size.width, geo.size.height)
             ZStack {
-                RoundedRectangle(cornerRadius: 12).fill(color.color(lit: false))
+                RoundedRectangle(cornerRadius: 12).fill(theme.fill(color, lit: false))
                 VStack(spacing: 0) {
                     half(delta: 1, fg: fg)
                     half(delta: -1, fg: fg)

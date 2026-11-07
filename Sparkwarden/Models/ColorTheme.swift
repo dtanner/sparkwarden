@@ -39,8 +39,9 @@ enum ColorTheme: String, CaseIterable, Codable, Identifiable {
         }
     }
 
+    // Predates SwiftLint; exempted rather than refactored.
     /// What a slot is called and its resting shade in this theme.
-    func swatch(_ color: PlayerColor) -> Swatch {
+    func swatch(_ color: PlayerColor) -> Swatch { // swiftlint:disable:this function_body_length
         switch self {
         case .classic:
             let name = color.rawValue.capitalized

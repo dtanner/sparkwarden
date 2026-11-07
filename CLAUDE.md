@@ -11,6 +11,11 @@ The Xcode project is generated from `project.yml` by XcodeGen and is **not**
 checked in. Use the justfile (`just` + `xcodegen` required): `just run`,
 `just test`, `just device`, `just release <major|minor|bugfix>`.
 
+Before committing, run `just check` (tests, SwiftLint in strict mode, and a
+build); `just install-hooks` makes that a pre-commit hook. Lint rules live in
+`.swiftlint.yml` (`brew install swiftlint`). Fix new violations rather than
+adding `swiftlint:disable` comments.
+
 Always edit `project.yml`, never the generated `.xcodeproj`. The default
 simulator is `iPhone 17` (override with the `sim` variable in the justfile).
 Launching with `--start-game` skips setup and opens the table (for screenshots).

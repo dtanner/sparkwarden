@@ -42,8 +42,11 @@ Build and run via the [`justfile`](justfile) (`just` + `xcodegen` required):
 | `just generate` | Regenerate `Sparkwarden.xcodeproj` from `project.yml` |
 | `just build` | Build for the simulator |
 | `just run` | Build, install, and launch in the simulator |
-| `just logs` | Stream the app's logs from the booted simulator |
+| `just logs` | Stream the app's logs from the simulator |
 | `just test` | Run the test suite on the simulator |
+| `just lint` | Run SwiftLint (strict) |
+| `just check` | Tests, lint, and build — run before committing |
+| `just install-hooks` | Make `just check` a git pre-commit hook |
 | `just device` | Build, install, and launch on your iPhone (USB or Wi-Fi) |
 | `just devices` | List connected devices and their UDIDs |
 | `just shot <name>` | Screenshot the booted simulator into `marketing/screenshots/` |

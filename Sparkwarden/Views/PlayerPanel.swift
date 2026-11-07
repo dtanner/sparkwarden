@@ -276,13 +276,13 @@ struct CounterChip: View {
     let systemImage: String
     /// A second, smaller symbol after the icon — the commander number on a
     /// partner player's tax chips.
-    var badge: String? = nil
+    var badge: String?
     let value: Int
     var step = 1
     /// Focus-view size: taller, with buttons well past the 44pt minimum.
     var large = false
     /// Name of the counter, shown under the number in the large size.
-    var caption: String? = nil
+    var caption: String?
     let fg: Color
     let change: (Int) -> Void
 
